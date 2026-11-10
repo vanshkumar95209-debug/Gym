@@ -19,6 +19,8 @@ import { FoodItem, FoodCategory, DailyDietLogItem, UserFitnessProfile, AppLangua
 import { FOOD_DATABASE, VEG_DIET_PLANS } from '../data/foods';
 import { TRANSLATIONS } from '../utils/translations';
 import { CustomDietMaker } from './CustomDietMaker';
+import { playFoodAddSound, playResetSound } from '../utils/audio';
+import { RotateCcw, Edit2 } from 'lucide-react';
 
 interface DietDirectoryProps {
   userProfile: UserFitnessProfile;
@@ -26,6 +28,7 @@ interface DietDirectoryProps {
   todayDietLogs: DailyDietLogItem[];
   onAddDietItem: (item: Omit<DailyDietLogItem, 'id'>) => void;
   onRemoveDietItem: (id: string) => void;
+  onResetDietLogs: () => void;
   language?: AppLanguage;
 }
 
@@ -35,11 +38,14 @@ export const DietDirectory: React.FC<DietDirectoryProps> = ({
   todayDietLogs,
   onAddDietItem,
   onRemoveDietItem,
+  onResetDietLogs,
   language = 'en'
 }) => {
   const t = TRANSLATIONS[language];
   const [activeTab, setActiveTab] = useState<'custom_maker' | 'veg_plans' | 'foods' | 'calculator'>('custom_maker');
   const [selectedVegPlanId, setSelectedVegPlanId] = useState<string>('veg-muscle-bulking');
+  const [showTargetEditModal, setShowTargetEditModal] = useState<boolean>(false);
+  const [tempTargetGrams, setTempTargetGrams] = useState<number>(userProfile.dailyProteinTargetGrams || 140);
   
   // Foods state
   const [selectedCategory, setSelectedCategory] = useState<FoodCategory>('all');
@@ -70,6 +76,7 @@ export const DietDirectory: React.FC<DietDirectoryProps> = ({
   const progressPercent = Math.min(100, Math.round((totalProteinConsumed / proteinTarget) * 100));
 
   const handleQuickAdd = (food: FoodItem) => {
+    playFoodAddSound();
     onAddDietItem({
       foodId: food.id,
       foodName: food.name,
@@ -82,6 +89,7 @@ export const DietDirectory: React.FC<DietDirectoryProps> = ({
 
   const handleCustomAdd = () => {
     if (!selectedFoodForServing) return;
+    playFoodAddSound();
     const ratio = servingGrams / 100;
     onAddDietItem({
       foodId: selectedFoodForServing.id,
@@ -92,6 +100,20 @@ export const DietDirectory: React.FC<DietDirectoryProps> = ({
       mealType: 'Lunch'
     });
     setSelectedFoodForServing(null);
+  };
+
+  const handleResetProtein = () => {
+    playResetSound();
+    onResetDietLogs();
+  };
+
+  const handleSaveNewTarget = (newTarget: number) => {
+    playFoodAddSound();
+    onUpdateProfile({
+      ...userProfile,
+      dailyProteinTargetGrams: newTarget
+    });
+    setShowTargetEditModal(false);
   };
 
   return (
@@ -106,8 +128,23 @@ export const DietDirectory: React.FC<DietDirectoryProps> = ({
             </span>
           </div>
 
-          <div className="text-2xl sm:text-3xl font-black text-white">
-            {totalProteinConsumed.toFixed(1)}g <span className="text-sm font-semibold text-slate-400">/ {proteinTarget}g</span>
+          <div className="flex items-center justify-center sm:justify-start gap-2.5 flex-wrap">
+            <div className="text-2xl sm:text-3xl font-black text-white">
+              {totalProteinConsumed.toFixed(1)}g <span className="text-sm font-semibold text-slate-400">/ {proteinTarget}g</span>
+            </div>
+
+            {/* Quick Edit Target Button */}
+            <button
+              onClick={() => {
+                setTempTargetGrams(proteinTarget);
+                setShowTargetEditModal(true);
+              }}
+              className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition"
+              title={language === 'hi' ? 'लक्ष्य बदलें' : 'Change Target'}
+            >
+              <Edit2 className="w-3 h-3" />
+              <span>{language === 'hi' ? 'लक्ष्य बदलें' : 'Edit Target'}</span>
+            </button>
           </div>
 
           <div className="w-full bg-slate-950 rounded-full h-2.5 border border-slate-800 overflow-hidden mt-1">
@@ -118,12 +155,93 @@ export const DietDirectory: React.FC<DietDirectoryProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5 flex-wrap justify-center">
           <span className="text-xs font-extrabold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl whitespace-nowrap">
             {progressPercent}% {language === 'hi' ? 'पूरा' : 'Achieved'}
           </span>
+
+          {/* Reset Today's Protein Button */}
+          <button
+            onClick={handleResetProtein}
+            className="px-3 py-1.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-red-500/50 text-slate-300 hover:text-red-400 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow-xs"
+            title={language === 'hi' ? 'आज का प्रोटीन 0g पर रीसेट करें' : 'Reset Today\'s Protein to 0g'}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>{language === 'hi' ? 'प्रोटीन रीसेट करें' : 'Reset Protein'}</span>
+          </button>
         </div>
       </div>
+
+      {/* Target Edit Modal */}
+      {showTargetEditModal && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
+            <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+              <h4 className="font-bold text-white text-sm">
+                {language === 'hi' ? 'दैनिक प्रोटीन लक्ष्य सेट करें' : 'Set Daily Protein Target'}
+              </h4>
+              <button 
+                onClick={() => setShowTargetEditModal(false)} 
+                className="text-slate-400 hover:text-white p-1 rounded-lg bg-slate-800 cursor-pointer text-xs"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                  {language === 'hi' ? 'दैनिक प्रोटीन (ग्राम में)' : 'Daily Protein (in Grams)'}
+                </label>
+                <input
+                  type="number"
+                  min="50"
+                  max="400"
+                  value={tempTargetGrams}
+                  onChange={(e) => setTempTargetGrams(Math.max(10, Number(e.target.value)))}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white font-black text-lg focus:outline-none focus:border-amber-400 text-center"
+                />
+              </div>
+
+              {/* Preset buttons */}
+              <div className="flex gap-1.5 flex-wrap justify-center">
+                {[100, 120, 140, 160, 180, 200].map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setTempTargetGrams(p)}
+                    className={`px-2.5 py-1 text-xs rounded-lg border font-bold cursor-pointer transition ${
+                      tempTargetGrams === p ? 'bg-amber-500 text-slate-950 border-amber-500' : 'bg-slate-950 text-slate-400 border-slate-800'
+                    }`}
+                  >
+                    {p}g
+                  </button>
+                ))}
+              </div>
+
+              <div className="p-2.5 bg-slate-950 rounded-xl border border-slate-800 text-[11px] text-slate-400 text-center">
+                {language === 'hi'
+                  ? `बॉडीबिल्डिंग के लिए आमतौर पर 1.6g - 2.2g प्रति kg वजन आवश्यक है।`
+                  : `For muscle building, 1.6g - 2.2g per kg of body weight is standard.`}
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowTargetEditModal(false)}
+                className="flex-1 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs cursor-pointer hover:bg-slate-700"
+              >
+                {language === 'hi' ? 'रद्द करें' : 'Cancel'}
+              </button>
+              <button
+                onClick={() => handleSaveNewTarget(tempTargetGrams)}
+                className="flex-1 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black rounded-xl text-xs cursor-pointer shadow-md"
+              >
+                {language === 'hi' ? 'सुरक्षित करें' : 'Save Target'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Mode Navigation Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto scrollbar-none">

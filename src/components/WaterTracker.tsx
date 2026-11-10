@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { DailyWaterLog, WaterScheduleSlot, AppLanguage } from '../types';
 import { TRANSLATIONS } from '../utils/translations';
+import { playWaterGulp, playWaterSplash, playResetSound } from '../utils/audio';
 
 interface WaterTrackerProps {
   waterLog: DailyWaterLog;
@@ -113,6 +114,11 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({
   const percentage = Math.min(100, Math.round((consumedMl / targetMl) * 100));
 
   const handleAddGlass = (count: number) => {
+    if (count >= 2) {
+      playWaterSplash();
+    } else {
+      playWaterGulp();
+    }
     const nextGlasses = Math.max(0, waterLog.glassesDrank + count);
     onUpdateWaterLog({
       ...waterLog,
@@ -121,6 +127,7 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({
   };
 
   const handleReset = () => {
+    playResetSound();
     onUpdateWaterLog({
       ...waterLog,
       glassesDrank: 0,
@@ -134,9 +141,11 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({
     let nextGlasses = waterLog.glassesDrank;
 
     if (isCompleted) {
+      playResetSound();
       nextCompleted = (waterLog.completedSlots || []).filter(id => id !== slotId);
       nextGlasses = Math.max(0, nextGlasses - slotGlasses);
     } else {
+      playWaterGulp();
       nextCompleted = [...(waterLog.completedSlots || []), slotId];
       nextGlasses = nextGlasses + slotGlasses;
     }

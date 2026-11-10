@@ -33,6 +33,7 @@ import {
   saveStoredCustomDietPlan, 
   deleteStoredCustomDietPlan 
 } from '../utils/storage';
+import { playFoodAddSound, playSuccessChime, playResetSound } from '../utils/audio';
 
 interface CustomDietMakerProps {
   userProfile: UserFitnessProfile;
@@ -150,6 +151,7 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
     const updated = saveStoredCustomDietPlan(currentPlan);
     setSavedPlans(updated);
     setSaveSuccessNotification(true);
+    playSuccessChime();
     confetti({
       particleCount: 45,
       spread: 60,
@@ -164,6 +166,7 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
       : 'क्या आप वाकई इस डाइट प्लान को हटाना चाहते हैं?';
     if (!window.confirm(confirmText)) return;
 
+    playResetSound();
     const remaining = deleteStoredCustomDietPlan(planId);
     setSavedPlans(remaining);
     if (remaining.length > 0) {
@@ -176,6 +179,7 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
   // Add Meal Slot
   const handleAddMealSlot = (mealName: string) => {
     if (!currentPlan || !mealName.trim()) return;
+    playFoodAddSound();
     const newSlot: CustomMealSlot = {
       id: 'meal-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
       name: mealName.trim(),
@@ -193,6 +197,7 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
   // Delete Meal Slot
   const handleDeleteMealSlot = (slotId: string) => {
     if (!currentPlan) return;
+    playResetSound();
     setCurrentPlan({
       ...currentPlan,
       meals: currentPlan.meals.filter(m => m.id !== slotId)
@@ -227,6 +232,7 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
   const handleConfirmAddDbFood = () => {
     if (!currentPlan || !activeMealSlotIdForFood || !selectedDbFood) return;
 
+    playFoodAddSound();
     const ratio = foodGramsInput / 100;
     const newFoodItem: CustomMealFoodItem = {
       id: 'food-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
@@ -261,6 +267,7 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
   const handleConfirmAddCustomFood = () => {
     if (!currentPlan || !activeMealSlotIdForFood || !customFoodName.trim()) return;
 
+    playFoodAddSound();
     const newFoodItem: CustomMealFoodItem = {
       id: 'custom-food-' + Date.now(),
       foodName: customFoodName.trim(),

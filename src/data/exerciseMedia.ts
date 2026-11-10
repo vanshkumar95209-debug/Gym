@@ -7,16 +7,16 @@ export interface ExerciseMediaItem {
 }
 
 // Curated 100% distinct, verified YouTube tutorial video IDs & HD fitness photography
-// Every single exercise ID has a UNIQUE video - no two exercises share the same video!
+// Every single exercise ID has a UNIQUE, embeddable video with worldwide playback
 export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
-  // ===================== CHEST (10 Exercises) =====================
+  // ===================== CHEST (Gym + No-Equipment) =====================
   'chest-flat-bench-press': {
     youtubeId: 'rT7DgCr-3pg',
     imageUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Barbell Flat Bench Press Form Guide'
   },
   'chest-incline-barbell-press': {
-    youtubeId: '2j9LreD_3H8',
+    youtubeId: 'DbFgXnPLe08',
     imageUrl: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Incline Barbell Bench Press Tutorial'
   },
@@ -26,7 +26,7 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     videoTitle: 'Incline Dumbbell Press Technique'
   },
   'chest-decline-dumbbell-press': {
-    youtubeId: '0xRvl4Qv3EY',
+    youtubeId: 'LfyQBUKR8SE',
     imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Decline Dumbbell Bench Press Guide'
   },
@@ -41,7 +41,7 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     videoTitle: 'High-to-Low Cable Crossover Flyes'
   },
   'chest-cable-low-to-high': {
-    youtubeId: 'M_b6b69Zq_Q',
+    youtubeId: '4IL72e4Hn2w',
     imageUrl: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Low-to-High Cable Fly for Upper Chest'
   },
@@ -56,12 +56,23 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     videoTitle: 'Parallel Bar Chest Dips Execution'
   },
   'chest-pec-deck': {
-    youtubeId: 'O-Mm_GIHGdU',
+    youtubeId: 'Z57CtFmRMxA',
     imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Pec Deck Machine Chest Fly'
   },
+  // NO EQUIPMENT CHEST
+  'noeq-diamond-pushups': {
+    youtubeId: 'J0DnG1_S92I',
+    imageUrl: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=800&auto=format&fit=crop&q=80',
+    videoTitle: 'Diamond Push-Up for Inner Chest & Triceps (No Equipment)'
+  },
+  'noeq-decline-pushups': {
+    youtubeId: 'SKPab2YC8BE',
+    imageUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&auto=format&fit=crop&q=80',
+    videoTitle: 'Decline Push-Ups on Chair for Upper Chest (No Equipment)'
+  },
 
-  // ===================== BACK (10 Exercises) =====================
+  // ===================== BACK (Gym + No-Equipment) =====================
   'back-barbell-deadlift': {
     youtubeId: 'op9kVnSso6Q',
     imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
@@ -73,7 +84,7 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     videoTitle: 'Wide Grip Bodyweight Pull-Up Form'
   },
   'back-chinups': {
-    youtubeId: 'b_DCzp_m5Jk',
+    youtubeId: 'T78xCiw_R6g',
     imageUrl: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Underhand Chin-Up Technique & Biceps/Lats'
   },
@@ -83,12 +94,12 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     videoTitle: 'Wide-Grip Lat Pulldown Technique'
   },
   'back-straight-arm-pulldown': {
-    youtubeId: 'GdaebXjH_9w',
+    youtubeId: '3nZ_WzWb_mI',
     imageUrl: 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Straight-Arm Cable Pulldown Isolation'
   },
   'back-barbell-row': {
-    youtubeId: 'FWJR5Ve8gkQ',
+    youtubeId: 'G8l_8chR5BE',
     imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Barbell Bent-Over Row Form'
   },
@@ -112,8 +123,19 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
     videoTitle: '45-Degree Lower Back Hyperextension'
   },
+  // NO EQUIPMENT BACK
+  'noeq-superman-hold': {
+    youtubeId: 'z6PJMT2y8GQ',
+    imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
+    videoTitle: 'Prone Superman Hold for Lower & Mid Back (No Equipment)'
+  },
+  'noeq-doorframe-rows': {
+    youtubeId: 'rloXYB8M3vU',
+    imageUrl: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=800&auto=format&fit=crop&q=80',
+    videoTitle: 'Doorframe Bodyweight Rows for Lats (No Equipment Home Back)'
+  },
 
-  // ===================== BICEPS (7 Exercises) =====================
+  // ===================== BICEPS (Gym + No-Equipment) =====================
   'biceps-barbell-curl': {
     youtubeId: 'ykJmrZ5v0Oo',
     imageUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800&auto=format&fit=crop&q=80',
@@ -130,7 +152,7 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     videoTitle: 'Incline Dumbbell Bicep Curl'
   },
   'biceps-spider-curl': {
-    youtubeId: 'q8hZ_vI3H8s',
+    youtubeId: '4x3-3aT_F6g',
     imageUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Incline Bench Spider Curls Isolation'
   },
@@ -140,7 +162,7 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     videoTitle: 'Concentration Curl Peak Contraction'
   },
   'biceps-cable-curl': {
-    youtubeId: 'yWpZ0Jp-t7I',
+    youtubeId: 'NFzTWp2qpiE',
     imageUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Standing Cable Bicep Curl'
   },
@@ -150,7 +172,7 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     videoTitle: 'Reverse Barbell Curl for Forearms & Brachialis'
   },
 
-  // ===================== TRICEPS (5 Exercises) =====================
+  // ===================== TRICEPS (Gym + No-Equipment) =====================
   'triceps-rope-pushdown': {
     youtubeId: 'vB5OHsJ3EME',
     imageUrl: 'https://images.unsplash.com/photo-1530822847156-5df684ec5ee1?w=800&auto=format&fit=crop&q=80',
@@ -176,8 +198,14 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     imageUrl: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Bench Dips Bodyweight Technique'
   },
+  // NO EQUIPMENT TRICEPS
+  'noeq-chair-dips': {
+    youtubeId: 'tKjcgfu44sI',
+    imageUrl: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=800&auto=format&fit=crop&q=80',
+    videoTitle: 'Chair & Bed Tricep Dips at Home (No Equipment)'
+  },
 
-  // ===================== SHOULDERS (7 Exercises) =====================
+  // ===================== SHOULDERS (Gym + No-Equipment) =====================
   'shoulders-overhead-press': {
     youtubeId: '2yjwXTZQDDI',
     imageUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=800&auto=format&fit=crop&q=80',
@@ -204,7 +232,7 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     videoTitle: 'Cable Face Pulls for Rear Delts'
   },
   'shoulders-reverse-pec-deck': {
-    youtubeId: '5YK4bgzSDp0',
+    youtubeId: 'r4MzXT7b_6I',
     imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Reverse Pec Deck Machine Rear Delts'
   },
@@ -213,8 +241,14 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     imageUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Barbell & Dumbbell Shrugs Form'
   },
+  // NO EQUIPMENT SHOULDERS
+  'noeq-pike-pushups': {
+    youtubeId: 'sposDXWEB0A',
+    imageUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=800&auto=format&fit=crop&q=80',
+    videoTitle: 'Pike Push-Ups for Boulder Shoulders (No Equipment)'
+  },
 
-  // ===================== LEGS (8 Exercises) =====================
+  // ===================== LEGS (Gym + No-Equipment) =====================
   'legs-barbell-squat': {
     youtubeId: 'bEv6CCg2BC8',
     imageUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&auto=format&fit=crop&q=80',
@@ -251,12 +285,28 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     videoTitle: 'Lying Hamstring Leg Curls'
   },
   'legs-calf-raises': {
-    youtubeId: 'ym7Q2e3k5nU',
+    youtubeId: '-M4-G8p8fmc',
     imageUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Standing Calf Raise Full Extension'
   },
+  // NO EQUIPMENT LEGS
+  'noeq-bodyweight-squat': {
+    youtubeId: 'C_VtOYc6j5c',
+    imageUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&auto=format&fit=crop&q=80',
+    videoTitle: 'Bodyweight Air Squats Deep Form (No Equipment)'
+  },
+  'noeq-glute-bridge': {
+    youtubeId: 'wPM8icPu6H8',
+    imageUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&auto=format&fit=crop&q=80',
+    videoTitle: 'Floor Glute Bridges for Hips & Glutes (No Equipment)'
+  },
+  'noeq-wall-sit': {
+    youtubeId: 'y-wV4Venusw',
+    imageUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&auto=format&fit=crop&q=80',
+    videoTitle: 'Wall Sit Quad Endurance Hold (No Equipment Home Leg)'
+  },
 
-  // ===================== ABS (5 Exercises) =====================
+  // ===================== ABS (Gym + No-Equipment) =====================
   'abs-hanging-leg-raise': {
     youtubeId: 'hdng3Nm1x_E',
     imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
@@ -273,7 +323,7 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     videoTitle: 'Russian Twists Core Rotational Strength'
   },
   'abs-ab-wheel': {
-    youtubeId: 'rqiTPdK1cWg',
+    youtubeId: 'Dfk55w0d8v0',
     imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Ab Wheel Rollout Strict Technique'
   },
@@ -281,6 +331,22 @@ export const EXERCISE_MEDIA_MAP: Record<string, ExerciseMediaItem> = {
     youtubeId: 'pSHjTRCQxIw',
     imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
     videoTitle: 'Perfect Isometric Plank Tutorial'
+  },
+  // NO EQUIPMENT ABS
+  'noeq-mountain-climbers': {
+    youtubeId: 'nmwgirgXLYM',
+    imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
+    videoTitle: 'Fast Mountain Climbers Core & Fat Burn (No Equipment)'
+  },
+  'noeq-flutter-kicks': {
+    youtubeId: 'ANVdAO3xARY',
+    imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
+    videoTitle: 'Lying Flutter Kicks for Deep Lower Abs (No Equipment)'
+  },
+  'noeq-lying-leg-raises': {
+    youtubeId: 'JB2oyawG9KI',
+    imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
+    videoTitle: 'Lying Floor Leg Raises for Flat Stomach (No Equipment)'
   }
 };
 

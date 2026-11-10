@@ -12,7 +12,8 @@ export type EquipmentType =
   | 'Dumbbell' 
   | 'Cables' 
   | 'Machine' 
-  | 'Bodyweight';
+  | 'Bodyweight'
+  | 'No Equipment';
 
 export type DifficultyLevel = 'Beginner' | 'Intermediate' | 'Advanced';
 
@@ -24,6 +25,7 @@ export interface Exercise {
   targetSubMuscle: string;
   secondaryMuscles: string[];
   equipment: EquipmentType;
+  isNoEquipment?: boolean;
   difficulty: DifficultyLevel;
   animationKey: string;
   repCadence: {
@@ -197,6 +199,13 @@ export interface CustomDietPlan {
   createdAt: string;
   meals: CustomMealSlot[];
   notes?: string;
+}
+
+export interface WorkoutStreakData {
+  currentStreak: number;
+  longestStreak: number;
+  lastWorkoutDate: string; // YYYY-MM-DD
+  historyDates: string[]; // array of completed workout date strings
 }
 
 export type AppLanguage = 'en' | 'hi';

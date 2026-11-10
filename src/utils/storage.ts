@@ -1,4 +1,12 @@
-import { DailyWorkoutLog, BodyMetrics, DailyDietLogItem, UserFitnessProfile, DailyWaterLog, AppLanguage, CustomDietPlan } from '../types';
+import { 
+  DailyWorkoutLog, 
+  BodyMetrics, 
+  DailyDietLogItem, 
+  UserFitnessProfile, 
+  DailyWaterLog, 
+  AppLanguage, 
+  CustomDietPlan
+} from '../types';
 
 const STORAGE_KEYS = {
   WORKOUT_LOGS: 'ironpulse_workout_logs_v1',
@@ -8,8 +16,22 @@ const STORAGE_KEYS = {
   FAVORITES: 'ironpulse_favorite_exercises_v1',
   WATER_LOGS: 'ironpulse_water_logs_v1',
   LANGUAGE: 'ironpulse_app_language_v1',
-  CUSTOM_DIET_PLANS: 'ironpulse_custom_diet_plans_v1'
+  CUSTOM_DIET_PLANS: 'ironpulse_custom_diet_plans_v1',
+  STREAK: 'ironpulse_workout_streak_v1'
 };
+
+export function getLocalDateString(d: Date = new Date()): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export function getYesterdayDateString(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return getLocalDateString(d);
+}
 
 const DEFAULT_PROFILE: UserFitnessProfile = {
   weightKg: 70,
@@ -228,6 +250,18 @@ export function removeDietLogItem(id: string, dateStr: string): DailyDietLogItem
   }
 }
 
+export function clearDietLogs(dateStr: string): DailyDietLogItem[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.DIET_LOGS);
+    const all = raw ? JSON.parse(raw) : [];
+    const updated = all.filter((i: { date: string }) => i.date !== dateStr);
+    localStorage.setItem(STORAGE_KEYS.DIET_LOGS, JSON.stringify(updated));
+    return [];
+  } catch {
+    return [];
+  }
+}
+
 export function getStoredProfile(): UserFitnessProfile {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
@@ -421,4 +455,6 @@ export function deleteStoredCustomDietPlan(id: string): CustomDietPlan[] {
     return [];
   }
 }
+
+
 
