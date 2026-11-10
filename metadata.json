@@ -1,0 +1,6 @@
+{
+  "name": "IronPulse - Gym Workout & Diet Tracker",
+  "description": "Comprehensive gym workout companion with animated exercise execution guides, muscle-specific workout plans, protein & nutrition directory, and daily workout & progress logging.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
