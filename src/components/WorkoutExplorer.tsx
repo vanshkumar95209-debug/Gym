@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Play, Info, Dumbbell, Star, Sparkles, ChevronRight, Video } from 'lucide-react';
+import { Play, Info, Dumbbell, Star, Sparkles, ChevronRight, Video, Timer } from 'lucide-react';
 import { Exercise, MuscleGroup, EquipmentType, AppLanguage } from '../types';
 import { EXERCISES, MUSCLE_GROUPS_META } from '../data/exercises';
 import { BodyMuscleMap } from './BodyMuscleMap';
@@ -15,6 +15,7 @@ interface WorkoutExplorerProps {
   onToggleFavorite: (id: string) => void;
   targetMuscleFilter?: MuscleGroup | 'all';
   language?: AppLanguage;
+  onOpenCustomTimer?: () => void;
 }
 
 export const WorkoutExplorer: React.FC<WorkoutExplorerProps> = ({
@@ -22,7 +23,8 @@ export const WorkoutExplorer: React.FC<WorkoutExplorerProps> = ({
   favorites,
   onToggleFavorite,
   targetMuscleFilter = 'chest',
-  language = 'en'
+  language = 'en',
+  onOpenCustomTimer
 }) => {
   const isEn = language === 'en';
   const t = TRANSLATIONS[language];
@@ -115,6 +117,18 @@ export const WorkoutExplorer: React.FC<WorkoutExplorerProps> = ({
               <span>🏠</span>
               <span>{isEn ? 'No Equipment' : 'बिना उपकरण'}</span>
             </button>
+
+            {/* Quick Custom Timer Shortcut Button */}
+            {onOpenCustomTimer && (
+              <button
+                onClick={onOpenCustomTimer}
+                className="px-3 py-1.5 rounded-xl text-xs font-black cursor-pointer transition flex items-center gap-1.5 shadow-sm active:scale-95 bg-slate-950 hover:bg-slate-800 text-amber-400 border border-amber-500/30"
+                title={isEn ? "Open Custom Gym Timer" : "कस्टम जिम टाइमर खोलें"}
+              >
+                <Timer className="w-3.5 h-3.5 text-amber-400" />
+                <span>{isEn ? 'Timer' : 'टाइमर'}</span>
+              </button>
+            )}
 
             <span className="text-xs text-amber-400 font-bold bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/20 whitespace-nowrap">
               {filteredExercises.length} {isEn ? 'Exercises' : 'कसरतें'}

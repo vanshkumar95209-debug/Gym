@@ -10,6 +10,7 @@ import { DietDirectory } from './components/DietDirectory';
 import { WaterTracker } from './components/WaterTracker';
 import { ProfileModal } from './components/ProfileModal';
 import { ActiveWorkoutModal } from './components/ActiveWorkoutModal';
+import { CustomTimerModal } from './components/CustomTimerModal';
 import { 
   getStoredDietLogs, 
   addDietLogItem, 
@@ -43,6 +44,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'workouts' | 'diet' | 'water'>('workouts');
   const [language, setLanguage] = useState<AppLanguage>('en'); // Default to English as explicitly requested!
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
+  const [showCustomTimerModal, setShowCustomTimerModal] = useState<boolean>(false);
   const [activeRoutineExercise, setActiveRoutineExercise] = useState<Exercise | null>(null);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState<boolean>(false);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);

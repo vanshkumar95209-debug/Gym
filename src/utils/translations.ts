@@ -38,6 +38,7 @@ export interface Translations {
   language: string;
   customDietMaker: string;
   createCustomDiet: string;
+  customTimer: string;
 }
 
 export const TRANSLATIONS: Record<AppLanguage, Translations> = {
@@ -78,7 +79,8 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     fats: 'Fats',
     language: 'Language',
     customDietMaker: 'Custom Diet Maker',
-    createCustomDiet: 'Create Custom Diet'
+    createCustomDiet: 'Create Custom Diet',
+    customTimer: 'Custom Timer'
   },
   hi: {
     workouts: 'कसरतें (Workouts)',
@@ -117,6 +119,7 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     fats: 'फैट्स',
     language: 'भाषा',
     customDietMaker: 'कस्टम डाइट मेकर',
-    createCustomDiet: 'खुद का डाइट प्लान बनाएं'
+    createCustomDiet: 'खुद का डाइट प्लान बनाएं',
+    customTimer: 'कस्टम टाइमर'
   }
 };

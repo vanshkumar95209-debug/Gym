@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dumbbell, Utensils, Settings, Droplets, Globe, Menu, X, ChevronRight } from 'lucide-react';
+import { Dumbbell, Utensils, Settings, Droplets, Globe, Menu, X, ChevronRight, Timer } from 'lucide-react';
 import { AppLanguage } from '../types';
 import { TRANSLATIONS } from '../utils/translations';
 
@@ -13,6 +13,7 @@ interface NavbarProps {
   isMobileDrawerOpen: boolean;
   onOpenMobileDrawer: () => void;
   onCloseMobileDrawer: () => void;
+  onOpenCustomTimer?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -24,7 +25,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleLanguage,
   isMobileDrawerOpen,
   onOpenMobileDrawer,
-  onCloseMobileDrawer
+  onCloseMobileDrawer,
+  onOpenCustomTimer
 }) => {
   const t = TRANSLATIONS[language];
 
@@ -96,8 +98,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </nav>
 
-        {/* Right side: Language Switcher & Settings */}
+        {/* Right side: Custom Timer, Language Switcher & Settings */}
         <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Custom Timer Button */}
+          <button
+            onClick={onOpenCustomTimer}
+            className="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-black text-amber-400 hover:text-white flex items-center gap-1.5 cursor-pointer transition shadow-xs"
+            title={t.customTimer}
+          >
+            <Timer className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline text-xs font-bold text-slate-200">{t.customTimer}</span>
+          </button>
+
           {/* Language Switcher Button (English default / Hindi toggle) */}
           <button
             onClick={onToggleLanguage}
@@ -226,6 +238,28 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <span className="block font-bold">{t.waterTracker}</span>
                     <span className={`text-[10px] block ${activeTab === 'water' ? 'text-slate-950/80 font-medium' : 'text-slate-500'}`}>
                       {language === 'hi' ? 'दैनिक पानी ट्रैकर' : 'Daily Water Hydration'}
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 opacity-60" />
+              </button>
+
+              {/* Custom Gym Timer Option */}
+              <button
+                onClick={() => {
+                  onCloseMobileDrawer();
+                  if (onOpenCustomTimer) onOpenCustomTimer();
+                }}
+                className="w-full p-3 rounded-2xl text-xs font-black flex items-center justify-between transition cursor-pointer bg-slate-950 text-slate-300 hover:bg-slate-800 border border-slate-800"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-slate-900 text-amber-400">
+                    <Timer className="w-4 h-4" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block font-bold">{t.customTimer}</span>
+                    <span className="text-[10px] block text-slate-500">
+                      {language === 'hi' ? 'रेस्ट, HIIT व स्टॉपवॉच' : 'Rest, HIIT & Stopwatch'}
                     </span>
                   </div>
                 </div>
