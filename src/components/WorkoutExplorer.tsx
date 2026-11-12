@@ -16,6 +16,7 @@ interface WorkoutExplorerProps {
   targetMuscleFilter?: MuscleGroup | 'all';
   language?: AppLanguage;
   onOpenCustomTimer?: () => void;
+  todayWorkoutLogs?: any[];
 }
 
 export const WorkoutExplorer: React.FC<WorkoutExplorerProps> = ({
@@ -24,7 +25,8 @@ export const WorkoutExplorer: React.FC<WorkoutExplorerProps> = ({
   onToggleFavorite,
   targetMuscleFilter = 'chest',
   language = 'en',
-  onOpenCustomTimer
+  onOpenCustomTimer,
+  todayWorkoutLogs = []
 }) => {
   const isEn = language === 'en';
   const t = TRANSLATIONS[language];
@@ -38,9 +40,9 @@ export const WorkoutExplorer: React.FC<WorkoutExplorerProps> = ({
 
   const filteredExercises = useMemo(() => {
     return EXERCISES.filter(ex => {
-      // Favorites filter
+      // When Favorites filter is active, show ALL starred favorites
       if (showFavoritesOnly) {
-        if (!favorites.includes(ex.id)) return false;
+        return favorites.includes(ex.id);
       }
       if (selectedMuscle !== 'all' && ex.targetMuscle !== selectedMuscle) return false;
       if (selectedEquipment === 'No Equipment') {
@@ -52,14 +54,20 @@ export const WorkoutExplorer: React.FC<WorkoutExplorerProps> = ({
     });
   }, [selectedMuscle, selectedEquipment, showFavoritesOnly, favorites]);
 
+  const [activeTimerSettings, setActiveTimerSettings] = useState<{ sets: number; workoutTime: number; restTime: number } | null>(null);
+
   const currentMuscleMeta = MUSCLE_GROUPS_META.find(m => m.id === selectedMuscle);
 
   const handleOpenExerciseGuide = (exercise: Exercise) => {
     setGuideExercise(exercise);
   };
 
-  const handleStartWorkoutFromGuide = (exercise: Exercise) => {
+  const handleStartWorkoutFromGuide = (
+    exercise: Exercise,
+    timerSettings?: { sets: number; workoutTime: number; restTime: number }
+  ) => {
     setGuideExercise(null);
+    setActiveTimerSettings(timerSettings || null);
     setActiveExerciseModal(exercise);
   };
 
@@ -306,16 +314,21 @@ export const WorkoutExplorer: React.FC<WorkoutExplorerProps> = ({
         />
       )}
 
-      {/* Active Workout Modal with Real Video Demo */}
+      {/* Active Workout Modal with Real Video Demo and Timer */}
       {activeExerciseModal && (
         <ActiveWorkoutModal
           exercise={activeExerciseModal}
-          onClose={() => setActiveExerciseModal(null)}
+          onClose={() => {
+            setActiveExerciseModal(null);
+            setActiveTimerSettings(null);
+          }}
           onFinishWorkout={(ex, sets) => {
             onLogWorkoutFromExplorer(ex, sets);
             setActiveExerciseModal(null);
+            setActiveTimerSettings(null);
           }}
           language={language}
+          initialTimerSettings={activeTimerSettings}
         />
       )}
     </div>

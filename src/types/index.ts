@@ -208,4 +208,45 @@ export interface WorkoutStreakData {
   historyDates: string[]; // array of completed workout date strings
 }
 
+export type WorkoutPlanDifficulty = 'lite' | 'moderate' | 'hard' | 'fatloss';
+
+export interface WorkoutPlanExercise {
+  exerciseId: string;
+  name: string;
+  hindiName: string;
+  targetMuscle: string;
+  equipment: string;
+  workSec: number;
+  restSec: number;
+  sets: number;
+  repsOrCadence: string;
+  breathingInhale: string;
+  breathingExhale: string;
+  tip: string;
+}
+
+export interface WorkoutPlan {
+  id: string;
+  difficulty: WorkoutPlanDifficulty;
+  titleEn: string;
+  titleHi: string;
+  taglineEn: string;
+  taglineHi: string;
+  durationMinutes: number;
+  targetFocusEn: string;
+  targetFocusHi: string;
+  color: string;
+  badge: string;
+  caloriesBurnEstimate: number;
+  descriptionEn: string;
+  descriptionHi: string;
+  exercises: WorkoutPlanExercise[];
+}
+
+export interface DailyWorkoutGoal {
+  date: string; // YYYY-MM-DD
+  targetMinutes: number;
+  achievedMinutes: number;
+}
+
 export type AppLanguage = 'en' | 'hi';

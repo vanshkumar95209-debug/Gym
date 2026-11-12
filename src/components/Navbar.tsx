@@ -1,11 +1,11 @@
 import React from 'react';
-import { Dumbbell, Utensils, Settings, Droplets, Globe, Menu, X, ChevronRight, Timer } from 'lucide-react';
+import { Dumbbell, Utensils, Settings, Droplets, Globe, Menu, X, ChevronRight, Timer, Sparkles, Target } from 'lucide-react';
 import { AppLanguage } from '../types';
 import { TRANSLATIONS } from '../utils/translations';
 
 interface NavbarProps {
-  activeTab: 'workouts' | 'diet' | 'water';
-  onSelectTab: (tab: 'workouts' | 'diet' | 'water') => void;
+  activeTab: 'workouts' | 'plans' | 'tracker' | 'diet' | 'water';
+  onSelectTab: (tab: 'workouts' | 'plans' | 'tracker' | 'diet' | 'water') => void;
   onOpenProfile: () => void;
   hasReminder: boolean;
   language: AppLanguage;
@@ -60,10 +60,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
         {/* Navigation Tabs (Desktop/Tablet) */}
-        <nav className="hidden sm:flex items-center gap-1.5 sm:gap-2">
+        <nav className="hidden sm:flex items-center gap-1 sm:gap-1.5">
           <button
             onClick={() => onSelectTab('workouts')}
-            className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer transition ${
+            className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer transition ${
               activeTab === 'workouts'
                 ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
                 : 'text-slate-300 hover:text-white hover:bg-slate-900'
@@ -74,8 +74,32 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <button
+            onClick={() => onSelectTab('plans')}
+            className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer transition ${
+              activeTab === 'plans'
+                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                : 'text-slate-300 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{t.workoutPlans}</span>
+          </button>
+
+          <button
+            onClick={() => onSelectTab('tracker')}
+            className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer transition ${
+              activeTab === 'tracker'
+                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                : 'text-slate-300 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <Target className="w-3.5 h-3.5" />
+            <span>{t.workoutTracker}</span>
+          </button>
+
+          <button
             onClick={() => onSelectTab('diet')}
-            className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer transition ${
+            className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer transition ${
               activeTab === 'diet'
                 ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
                 : 'text-slate-300 hover:text-white hover:bg-slate-900'
@@ -87,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             onClick={() => onSelectTab('water')}
-            className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer transition ${
+            className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer transition ${
               activeTab === 'water'
                 ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
                 : 'text-slate-300 hover:text-white hover:bg-slate-900'
@@ -100,14 +124,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right side: Custom Timer, Language Switcher & Settings */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Custom Timer Button */}
+          {/* Timer Button */}
           <button
             onClick={onOpenCustomTimer}
-            className="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-black text-amber-400 hover:text-white flex items-center gap-1.5 cursor-pointer transition shadow-xs"
-            title={t.customTimer}
+            className="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-black text-amber-400 hover:text-white flex items-center gap-1.5 cursor-pointer transition shadow-xs active:scale-95"
+            title={language === 'hi' ? 'टाइमर (Timer)' : 'Timer'}
+            aria-label="Timer"
           >
             <Timer className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden sm:inline text-xs font-bold text-slate-200">{t.customTimer}</span>
+            <span className="text-xs font-bold text-slate-200">{language === 'hi' ? 'टाइमर' : 'Timer'}</span>
           </button>
 
           {/* Language Switcher Button (English default / Hindi toggle) */}
@@ -194,6 +219,58 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <ChevronRight className="w-4 h-4 opacity-60" />
               </button>
 
+              {/* Workout Plans */}
+              <button
+                onClick={() => {
+                  onSelectTab('plans');
+                  onCloseMobileDrawer();
+                }}
+                className={`w-full p-3 rounded-2xl text-xs font-black flex items-center justify-between transition cursor-pointer ${
+                  activeTab === 'plans'
+                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                    : 'bg-slate-950 text-slate-300 hover:bg-slate-800 border border-slate-800'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-xl ${activeTab === 'plans' ? 'bg-black/15' : 'bg-slate-900'}`}>
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block font-bold">{t.workoutPlans}</span>
+                    <span className={`text-[10px] block ${activeTab === 'plans' ? 'text-slate-950/80 font-medium' : 'text-slate-500'}`}>
+                      {language === 'hi' ? 'फुल-बॉडी प्लान्स (Lite, Hard, Fat Loss)' : 'Full Body Plans (Lite, Hard, Fat Loss)'}
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 opacity-60" />
+              </button>
+
+              {/* Workout Tracker */}
+              <button
+                onClick={() => {
+                  onSelectTab('tracker');
+                  onCloseMobileDrawer();
+                }}
+                className={`w-full p-3 rounded-2xl text-xs font-black flex items-center justify-between transition cursor-pointer ${
+                  activeTab === 'tracker'
+                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                    : 'bg-slate-950 text-slate-300 hover:bg-slate-800 border border-slate-800'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-xl ${activeTab === 'tracker' ? 'bg-black/15' : 'bg-slate-900'}`}>
+                    <Target className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block font-bold">{t.workoutTracker}</span>
+                    <span className={`text-[10px] block ${activeTab === 'tracker' ? 'text-slate-950/80 font-medium' : 'text-slate-500'}`}>
+                      {language === 'hi' ? 'दैनिक गोल (30 min) व हिस्ट्री' : 'Daily Goal (30 min) & History'}
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 opacity-60" />
+              </button>
+
               <button
                 onClick={() => {
                   onSelectTab('diet');
@@ -257,7 +334,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <Timer className="w-4 h-4" />
                   </div>
                   <div className="text-left">
-                    <span className="block font-bold">{t.customTimer}</span>
+                    <span className="block font-bold">{language === 'hi' ? 'टाइमर (Timer)' : 'Timer'}</span>
                     <span className="text-[10px] block text-slate-500">
                       {language === 'hi' ? 'रेस्ट, HIIT व स्टॉपवॉच' : 'Rest, HIIT & Stopwatch'}
                     </span>

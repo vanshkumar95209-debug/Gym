@@ -1,24 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   X, 
   Play, 
+  Pause,
   RotateCcw, 
   Check, 
   Plus, 
-  Trash2, 
-  Award, 
+  Minus,
   Sparkles, 
-  ChevronRight, 
-  Info, 
-  Compass, 
-  Target, 
   Wind, 
-  AlertTriangle 
+  Flame,
+  Coffee,
+  SkipForward,
+  Video,
+  Award,
+  ChevronRight,
+  Settings2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Exercise, WorkoutSet, AppLanguage } from '../types';
 import { ExerciseVideoPlayer } from './ExerciseVideoPlayer';
-import { playRepDing, playTimerTick, playTimerComplete } from '../utils/audio';
+import { 
+  playRepDing, 
+  playTimerTick, 
+  playTimerComplete, 
+  playIntervalChangeSound,
+  playStreakFanfare 
+} from '../utils/audio';
 import { getExerciseGuide } from '../data/exerciseGuides';
 
 interface ActiveWorkoutModalProps {
@@ -26,375 +34,640 @@ interface ActiveWorkoutModalProps {
   onClose: () => void;
   onFinishWorkout: (exercise: Exercise, sets: WorkoutSet[]) => void;
   language?: AppLanguage;
+  initialTimerSettings?: { sets: number; workoutTime: number; restTime: number } | null;
 }
 
 export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
   exercise,
   onClose,
   onFinishWorkout,
-  language = 'en'
+  language = 'en',
+  initialTimerSettings = null
 }) => {
   const isEn = language === 'en';
   const guide = getExerciseGuide(exercise, language);
 
-  // Sets state
-  const [sets, setSets] = useState<WorkoutSet[]>([
-    { id: '1', setNumber: 1, weightKg: 20, reps: 12, completed: false },
-    { id: '2', setNumber: 2, weightKg: 25, reps: 10, completed: false },
-    { id: '3', setNumber: 3, weightKg: 30, reps: 8, completed: false },
-  ]);
+  // Modal Stage: 'setup' -> 'active' -> 'completed'
+  // If timer settings were already picked in the previous screen, jump straight to 'active'
+  const [workoutState, setWorkoutState] = useState<'setup' | 'active' | 'completed'>(
+    initialTimerSettings ? 'active' : 'setup'
+  );
 
-  // Rest Timer state
-  const [restDuration, setRestDuration] = useState<number>(60);
-  const [timeLeft, setTimeLeft] = useState<number>(0);
-  const [timerRunning, setTimerRunning] = useState<boolean>(false);
-  const [showGuideDetails, setShowGuideDetails] = useState<boolean>(false);
+  // Setup options
+  const [totalSets, setTotalSets] = useState<number>(initialTimerSettings?.sets || 3);
+  const [workDuration, setWorkDuration] = useState<number>(initialTimerSettings?.workoutTime || 40); // sec
+  const [restDuration, setRestDuration] = useState<number>(initialTimerSettings?.restTime || 60); // sec
 
-  // Timer countdown hook
+  // Active workout execution state
+  const [currentSet, setCurrentSet] = useState<number>(1);
+  const [phase, setPhase] = useState<'work' | 'rest'>('work');
+  const [timeLeft, setTimeLeft] = useState<number>(initialTimerSettings?.workoutTime || 40);
+  const [isRunning, setIsRunning] = useState<boolean>(Boolean(initialTimerSettings));
+  const [completedSets, setCompletedSets] = useState<WorkoutSet[]>([]);
+  const [showVideo, setShowVideo] = useState<boolean>(false);
+  const [totalTimeSpentSec, setTotalTimeSpentSec] = useState<number>(0);
+
+  // Play start sound when active starts
+  useEffect(() => {
+    if (initialTimerSettings) {
+      playIntervalChangeSound(true);
+    }
+  }, []);
+
+  // Main workout timer loop
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (timerRunning && timeLeft > 0) {
+    if (workoutState === 'active' && isRunning && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
-            setTimerRunning(false);
-            playTimerComplete();
+            handlePhaseComplete();
             return 0;
           }
-          if (prev <= 4) {
+          if (prev <= 4 && prev > 1) {
             playTimerTick();
           }
           return prev - 1;
         });
+        setTotalTimeSpentSec(t => t + 1);
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [timerRunning, timeLeft]);
+  }, [workoutState, isRunning, timeLeft, phase, currentSet, totalSets, workDuration, restDuration]);
 
-  const startRestTimer = (seconds: number) => {
-    setTimeLeft(seconds);
-    setTimerRunning(true);
-  };
+  // Handle phase completion: Work -> Rest -> Next Work -> ... -> Completed
+  const handlePhaseComplete = () => {
+    if (phase === 'work') {
+      // Work period finished for this set
+      playRepDing();
+      const newCompletedSet: WorkoutSet = {
+        id: `set-${currentSet}-${Date.now()}`,
+        setNumber: currentSet,
+        weightKg: 20,
+        reps: 10,
+        completed: true
+      };
+      const updatedSets = [...completedSets, newCompletedSet];
+      setCompletedSets(updatedSets);
 
-  const handleToggleSetComplete = (setId: string) => {
-    setSets(prev => prev.map(s => {
-      if (s.id === setId) {
-        const nextState = !s.completed;
-        if (nextState) {
-          playRepDing();
-          startRestTimer(restDuration);
-        }
-        return { ...s, completed: nextState };
+      if (currentSet >= totalSets) {
+        // All sets finished!
+        setIsRunning(false);
+        setWorkoutState('completed');
+        playStreakFanfare();
+        confetti({
+          particleCount: 90,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+      } else {
+        // Transition to Rest Phase
+        playIntervalChangeSound(false);
+        setPhase('rest');
+        setTimeLeft(restDuration);
       }
-      return s;
-    }));
+    } else {
+      // Rest period finished -> start next set work phase!
+      playIntervalChangeSound(true);
+      setCurrentSet(s => s + 1);
+      setPhase('work');
+      setTimeLeft(workDuration);
+    }
   };
 
-  const handleAddSet = () => {
-    const lastSet = sets[sets.length - 1];
-    const newSet: WorkoutSet = {
-      id: String(Date.now()),
-      setNumber: sets.length + 1,
-      weightKg: lastSet ? lastSet.weightKg : 20,
-      reps: lastSet ? lastSet.reps : 10,
-      completed: false
-    };
-    setSets([...sets, newSet]);
+  // Skip or finish current set early
+  const handleFinishSetEarly = () => {
+    handlePhaseComplete();
   };
 
-  const handleDeleteSet = (setId: string) => {
-    if (sets.length <= 1) return;
-    const filtered = sets.filter(s => s.id !== setId).map((s, idx) => ({
-      ...s,
-      setNumber: idx + 1
-    }));
-    setSets(filtered);
+  // Skip rest period and immediately start next set
+  const handleSkipRest = () => {
+    playIntervalChangeSound(true);
+    setCurrentSet(s => s + 1);
+    setPhase('work');
+    setTimeLeft(workDuration);
   };
 
-  const handleFinish = () => {
-    confetti({
-      particleCount: 80,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
-    onFinishWorkout(exercise, sets);
+  // Adjust current timer by seconds (+10s or -10s)
+  const handleAdjustTime = (delta: number) => {
+    setTimeLeft(prev => Math.max(1, prev + delta));
   };
 
-  const totalVolume = sets
-    .filter(s => s.completed)
-    .reduce((sum, s) => sum + (s.weightKg * s.reps), 0);
+  // Start workout from setup screen
+  const handleStartWorkout = () => {
+    const safeSets = Math.max(1, totalSets);
+    const safeWork = Math.max(5, workDuration);
+    const safeRest = Math.max(0, restDuration);
 
-  const completedSetsCount = sets.filter(s => s.completed).length;
+    setTotalSets(safeSets);
+    setWorkDuration(safeWork);
+    setRestDuration(safeRest);
+
+    setCurrentSet(1);
+    setPhase('work');
+    setTimeLeft(safeWork);
+    setIsRunning(true);
+    setCompletedSets([]);
+    setTotalTimeSpentSec(0);
+    setWorkoutState('active');
+
+    playIntervalChangeSound(true);
+  };
+
+  // Save workout and finish
+  const handleFinalSave = () => {
+    const finalSets = completedSets.length > 0 
+      ? completedSets 
+      : Array.from({ length: totalSets }).map((_, idx) => ({
+          id: `set-${idx + 1}`,
+          setNumber: idx + 1,
+          weightKg: 20,
+          reps: 10,
+          completed: true
+        }));
+    onFinishWorkout(exercise, finalSets);
+    onClose();
+  };
+
+  // Formatting seconds into MM:SS
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-3xl max-h-[92vh] overflow-y-auto shadow-2xl flex flex-col">
-        {/* Modal Top Header */}
-        <div className="sticky top-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 p-4 sm:p-5 flex items-center justify-between z-10">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl sm:rounded-3xl w-full max-w-2xl max-h-[94vh] overflow-y-auto shadow-2xl flex flex-col relative">
+        
+        {/* Top Header */}
+        <div className="sticky top-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 p-3.5 sm:p-4 flex items-center justify-between z-10">
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                {isEn ? 'Live Workout' : 'सक्रिय वर्कआउट'}
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                {isEn ? 'Exercise Timer' : 'कसरत टाइमर'}
               </span>
-              <span className="text-xs text-slate-400">{exercise.equipment}</span>
+              <span className="text-[11px] text-slate-400">🎯 {exercise.targetMuscle}</span>
             </div>
-            <h2 className="text-lg sm:text-xl font-bold text-white mt-1">
+            <h2 className="text-base sm:text-lg font-black text-white mt-0.5">
               {isEn ? exercise.name : exercise.hindiName}
             </h2>
-            <p className="text-xs text-slate-400">
-              {isEn ? exercise.targetSubMuscle : exercise.targetSubMuscle}
-            </p>
           </div>
 
           <button
             onClick={onClose}
             className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition cursor-pointer"
+            title={isEn ? "Close" : "बंद करें"}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-4 sm:p-6 space-y-6">
-          {/* Real Video & Photo Demonstration (No SVG Animation!) */}
-          <div>
-            <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
-              <span className="text-xs font-bold text-slate-300 uppercase tracking-wide flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>{isEn ? 'Real Video & Technique' : 'असली वीडियो व तकनीक'}</span>
-              </span>
-              
-              <button
-                onClick={() => setShowGuideDetails(!showGuideDetails)}
-                className="text-xs text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 cursor-pointer transition"
-              >
-                <Info className="w-3.5 h-3.5" />
-                <span>
-                  {showGuideDetails 
-                    ? (isEn ? 'Hide Guide' : 'गाइड छिपाएं') 
-                    : (isEn ? 'Show Form Guide' : 'पोजीशन व गाइड देखें')}
-                </span>
-              </button>
-            </div>
+        <div className="p-4 sm:p-5 space-y-4">
 
-            <ExerciseVideoPlayer
-              exerciseId={exercise.id}
-              targetMuscle={exercise.targetMuscle}
-              exerciseName={exercise.name}
-              autoPlayVideo={false}
-              language={language}
-            />
-
-            {/* Collapsible Form & Position Guide */}
-            {showGuideDetails && (
-              <div className="mt-3 p-3.5 bg-slate-950 border border-slate-800 rounded-xl space-y-3 text-xs animate-in fade-in">
-                <div className="font-bold text-amber-400 border-b border-slate-800 pb-1 flex items-center gap-1.5">
-                  <Compass className="w-4 h-4 text-amber-400" />
-                  <span>{guide.positionSetup.heading}</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-300">
-                  <div className="bg-slate-900 p-2 rounded-lg">
-                    <strong className="text-slate-200 block mb-0.5">{isEn ? 'Stance & Body:' : 'शरीर / मुद्रा:'}</strong>
-                    <span>{guide.positionSetup.stance}</span>
-                  </div>
-                  <div className="bg-slate-900 p-2 rounded-lg">
-                    <strong className="text-slate-200 block mb-0.5">{isEn ? 'Grip & Hands:' : 'ग्रिप व हाथ:'}</strong>
-                    <span>{guide.positionSetup.grip}</span>
-                  </div>
-                  <div className="bg-slate-900 p-2 rounded-lg">
-                    <strong className="text-slate-200 block mb-0.5">{isEn ? 'Posture:' : 'कमर व छाती:'}</strong>
-                    <span>{guide.positionSetup.posture}</span>
-                  </div>
-                  <div className="bg-slate-900 p-2 rounded-lg">
-                    <strong className="text-slate-200 block mb-0.5">{isEn ? 'Feet Base:' : 'पैर व संतुलन:'}</strong>
-                    <span>{guide.positionSetup.feet}</span>
-                  </div>
-                </div>
-
-                <div className="font-bold text-amber-400 border-b border-slate-800 pb-1 flex items-center gap-1.5 pt-1">
-                  <Target className="w-4 h-4 text-amber-400" />
-                  <span>{guide.executionSteps.heading}</span>
-                </div>
-                <div className="space-y-1.5 text-slate-300">
-                  <div className="bg-slate-900 p-2 rounded-lg">
-                    <strong className="text-blue-400 block mb-0.5">{isEn ? '⬇️ Lowering:' : '⬇️ नीचे लाते वक्त:'}</strong>
-                    <span>{guide.executionSteps.step1Negative}</span>
-                  </div>
-                  <div className="bg-slate-900 p-2 rounded-lg">
-                    <strong className="text-emerald-400 block mb-0.5">{isEn ? '⬆️ Pressing / Pulling:' : '⬆️ ऊपर धकेलते वक्त:'}</strong>
-                    <span>{guide.executionSteps.step2Positive}</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                  <div className="bg-cyan-950/30 border border-cyan-800/40 p-2 rounded-lg text-cyan-200">
-                    <strong className="text-cyan-400 block mb-0.5">{isEn ? 'Breathing:' : 'सांस का नियम:'}</strong>
-                    <span>{guide.breathing.inhale} {guide.breathing.exhale}</span>
-                  </div>
-                  <div className="bg-rose-950/30 border border-rose-800/40 p-2 rounded-lg text-rose-200">
-                    <strong className="text-rose-400 block mb-0.5">{isEn ? 'Mistake to Avoid:' : 'गलतियों से बचें:'}</strong>
-                    <span>{guide.mistakes.items[0]}</span>
-                  </div>
-                </div>
+          {/* ===================== STAGE 1: SETUP SCREEN ===================== */}
+          {workoutState === 'setup' && (
+            <div className="space-y-4 animate-in fade-in">
+              {/* YouTube Video Preview / Toggle */}
+              <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-inner">
+                <ExerciseVideoPlayer
+                  exerciseId={exercise.id}
+                  targetMuscle={exercise.targetMuscle}
+                  exerciseName={exercise.name}
+                  autoPlayVideo={false}
+                  language={language}
+                />
               </div>
-            )}
-          </div>
 
-          {/* Rest Countdown Timer Bar */}
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full border-2 border-cyan-500/30 flex items-center justify-center bg-cyan-500/10 text-cyan-400 font-mono font-bold text-base">
-                {timeLeft > 0 ? `${timeLeft}s` : '0s'}
-              </div>
-              <div>
-                <div className="text-xs font-bold text-white flex items-center gap-1">
-                  <span>{isEn ? 'Rest Timer' : 'रेस्ट टाइमर'}</span>
-                  {timerRunning && <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />}
+              {/* ONLY BREATHING TECHNIQUE (Guide removed as requested) */}
+              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3.5 space-y-2">
+                <div className="flex items-center gap-2 text-cyan-400 font-bold text-xs sm:text-sm border-b border-slate-800 pb-1.5">
+                  <Wind className="w-4 h-4 text-cyan-400" />
+                  <span>{isEn ? 'Breathing Technique' : 'सांस का नियम'}</span>
                 </div>
-                <p className="text-[11px] text-slate-400">
-                  {timerRunning 
-                    ? (isEn ? 'Catch your breath and prepare for the next set' : 'सांस लें और अगली सेट की तैयारी करें')
-                    : (isEn ? 'Timer starts automatically when completing a set' : 'सेट पूरा होने पर ऑटोमैटिक टाइमर शुरू होगा')}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div className="p-2.5 rounded-xl bg-cyan-950/30 border border-cyan-800/40 text-cyan-200">
+                    <strong className="block text-cyan-400 mb-0.5">
+                      🟢 {isEn ? 'Inhale (सांस अंदर):' : 'सांस अंदर लें:'}
+                    </strong>
+                    <span className="text-[11px] leading-relaxed text-slate-300">{guide.breathing.inhale}</span>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-rose-950/30 border border-rose-800/40 text-rose-200">
+                    <strong className="block text-rose-400 mb-0.5">
+                      🔴 {isEn ? 'Exhale (सांस बाहर):' : 'सांस बाहर छोड़ें:'}
+                    </strong>
+                    <span className="text-[11px] leading-relaxed text-slate-300">{guide.breathing.exhale}</span>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-slate-400 italic pt-1">
+                  💡 {guide.breathing.tip}
                 </p>
               </div>
-            </div>
 
-            {/* Rest Preset Buttons */}
-            <div className="flex items-center gap-1.5">
-              {[30, 60, 90].map(sec => (
-                <button
-                  key={sec}
-                  onClick={() => {
-                    setRestDuration(sec);
-                    startRestTimer(sec);
-                  }}
-                  className={`px-2.5 py-1 text-xs rounded-lg font-semibold border cursor-pointer transition ${
-                    timeLeft === sec && timerRunning
-                      ? 'bg-cyan-500 text-black border-cyan-400'
-                      : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-700'
-                  }`}
-                >
-                  {sec}s
-                </button>
-              ))}
-              {timerRunning && (
-                <button
-                  onClick={() => setTimerRunning(false)}
-                  className="px-2.5 py-1 text-xs rounded-lg font-semibold bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30 cursor-pointer"
-                >
-                  {isEn ? 'Stop' : 'रोकें'}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Sets and Reps Logging Table */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-bold text-white">
-                {isEn ? 'Sets & Weight Logger' : 'सेट्स व वजन दर्ज करें'}
-              </h3>
-              <span className="text-xs text-slate-400">
-                {isEn ? 'Total Volume:' : 'कुल वॉल्यूम:'} <strong className="text-amber-400">{totalVolume} kg</strong>
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              {sets.map((set) => (
-                <div
-                  key={set.id}
-                  className={`p-3 rounded-xl border flex items-center justify-between gap-2 transition ${
-                    set.completed
-                      ? 'bg-emerald-950/20 border-emerald-500/40 text-emerald-200'
-                      : 'bg-slate-950/70 border-slate-800 text-slate-200'
-                  }`}
-                >
-                  {/* Set Number */}
-                  <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center font-bold text-xs text-slate-300">
-                    S{set.setNumber}
-                  </div>
-
-                  {/* Weight Input (Kg) */}
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="number"
-                      step="0.5"
-                      min="0"
-                      value={set.weightKg}
-                      onChange={(e) => {
-                        const val = parseFloat(e.target.value) || 0;
-                        setSets(sets.map(s => s.id === set.id ? { ...s, weightKg: val } : s));
-                      }}
-                      className="w-16 bg-slate-900 border border-slate-700 rounded-lg py-1 px-2 text-center text-xs text-white font-bold focus:border-amber-500 outline-none"
-                    />
-                    <span className="text-xs text-slate-400">kg</span>
-                  </div>
-
-                  {/* Reps Input */}
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="number"
-                      min="1"
-                      value={set.reps}
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value, 10) || 1;
-                        setSets(sets.map(s => s.id === set.id ? { ...s, reps: val } : s));
-                      }}
-                      className="w-14 bg-slate-900 border border-slate-700 rounded-lg py-1 px-2 text-center text-xs text-white font-bold focus:border-amber-500 outline-none"
-                    />
-                    <span className="text-xs text-slate-400">{isEn ? 'reps' : 'रेप्स'}</span>
-                  </div>
-
-                  {/* Complete Button */}
-                  <button
-                    onClick={() => handleToggleSetComplete(set.id)}
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition ${
-                      set.completed
-                        ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                        : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
-                    }`}
-                  >
-                    <Check className="w-4 h-4 stroke-[2.5]" />
-                  </button>
-
-                  {/* Delete Button */}
-                  <button
-                    onClick={() => handleDeleteSet(set.id)}
-                    disabled={sets.length <= 1}
-                    className="p-1.5 text-slate-500 hover:text-red-400 disabled:opacity-30 cursor-pointer"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+              {/* SETS, WORKOUT TIME, REST TIME SETUP CONTROLS */}
+              <div className="bg-slate-950 border border-amber-500/30 rounded-2xl p-4 space-y-3 shadow-lg shadow-amber-500/5">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <Settings2 className="w-4 h-4 text-amber-400" />
+                    <span>{isEn ? 'Setup Workout Timer:' : 'टाइमर व सेट्स सेट करें:'}</span>
+                  </span>
+                  <span className="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                    {isEn ? 'Direct Editable + Plus/Minus' : 'सीधा नंबर बदलें या +/- दबाएं'}
+                  </span>
                 </div>
-              ))}
+
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  {/* 1. Sets */}
+                  <div className="space-y-1.5 text-center">
+                    <label className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
+                      {isEn ? 'Sets' : 'कुल सेट्स'}
+                    </label>
+                    <div className="flex items-center justify-center gap-0.5 bg-slate-900 border border-slate-800 rounded-xl p-1 focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500/30 transition-all">
+                      <button
+                        type="button"
+                        onClick={() => setTotalSets(s => Math.max(1, s - 1))}
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition active:scale-95 cursor-pointer"
+                        title="-1 Set"
+                      >
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
+                      <input
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={totalSets || ''}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          setTotalSets(isNaN(val) ? 1 : Math.max(1, Math.min(20, val)));
+                        }}
+                        onBlur={() => {
+                          if (!totalSets || totalSets < 1) setTotalSets(1);
+                        }}
+                        className="w-10 sm:w-12 text-center bg-transparent font-mono font-black text-white text-sm outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setTotalSets(s => Math.min(20, s + 1))}
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition active:scale-95 cursor-pointer"
+                        title="+1 Set"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 2. Workout Time Per Set */}
+                  <div className="space-y-1.5 text-center">
+                    <label className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block flex items-center justify-center gap-1">
+                      <Flame className="w-2.5 h-2.5 text-emerald-400" />
+                      <span>{isEn ? 'Work (Sec)' : 'वर्कआउट (से)'}</span>
+                    </label>
+                    <div className="flex items-center justify-center gap-0.5 bg-slate-900 border border-slate-800 rounded-xl p-1 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/30 transition-all">
+                      <button
+                        type="button"
+                        onClick={() => setWorkDuration(w => Math.max(5, w - 5))}
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition active:scale-95 cursor-pointer"
+                        title="-5s"
+                      >
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
+                      <input
+                        type="number"
+                        min="5"
+                        max="300"
+                        value={workDuration || ''}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          setWorkDuration(isNaN(val) ? 5 : Math.max(5, Math.min(300, val)));
+                        }}
+                        onBlur={() => {
+                          if (!workDuration || workDuration < 5) setWorkDuration(5);
+                        }}
+                        className="w-10 sm:w-12 text-center bg-transparent font-mono font-black text-white text-sm outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setWorkDuration(w => Math.min(300, w + 5))}
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition active:scale-95 cursor-pointer"
+                        title="+5s"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 3. Rest Time Between Sets */}
+                  <div className="space-y-1.5 text-center">
+                    <label className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider block flex items-center justify-center gap-1">
+                      <Coffee className="w-2.5 h-2.5 text-cyan-400" />
+                      <span>{isEn ? 'Rest (Sec)' : 'रेस्ट (से)'}</span>
+                    </label>
+                    <div className="flex items-center justify-center gap-0.5 bg-slate-900 border border-slate-800 rounded-xl p-1 focus-within:border-cyan-500 focus-within:ring-1 focus-within:ring-cyan-500/30 transition-all">
+                      <button
+                        type="button"
+                        onClick={() => setRestDuration(r => Math.max(0, r - 5))}
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition active:scale-95 cursor-pointer"
+                        title="-5s"
+                      >
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
+                      <input
+                        type="number"
+                        min="0"
+                        max="300"
+                        value={restDuration === 0 ? '0' : (restDuration || '')}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          setRestDuration(isNaN(val) ? 0 : Math.max(0, Math.min(300, val)));
+                        }}
+                        className="w-10 sm:w-12 text-center bg-transparent font-mono font-black text-white text-sm outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setRestDuration(r => Math.min(300, r + 5))}
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition active:scale-95 cursor-pointer"
+                        title="+5s"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-slate-800/80">
+                  <span className="text-[10px] text-slate-400 font-bold mr-1">
+                    {isEn ? 'Presets:' : 'प्रीसेट्स:'}
+                  </span>
+                  {[
+                    { label: '3 × 30s/45s', sets: 3, work: 30, rest: 45 },
+                    { label: '3 × 40s/60s', sets: 3, work: 40, rest: 60 },
+                    { label: '4 × 45s/60s', sets: 4, work: 45, rest: 60 },
+                    { label: '5 × 45s/90s', sets: 5, work: 45, rest: 90 },
+                  ].map((preset, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setTotalSets(preset.sets);
+                        setWorkDuration(preset.work);
+                        setRestDuration(preset.rest);
+                      }}
+                      className="px-2 py-0.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[11px] font-bold border border-slate-800 cursor-pointer transition"
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Start Exercise Button */}
+              <button
+                onClick={handleStartWorkout}
+                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-sm cursor-pointer transition shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 active:scale-98"
+              >
+                <Play className="w-5 h-5 fill-slate-950" />
+                <span>{isEn ? 'Start Exercise' : 'कसरत शुरू करें'}</span>
+              </button>
             </div>
+          )}
 
-            {/* Add Set Button */}
-            <button
-              onClick={handleAddSet}
-              className="mt-3 w-full py-2 border border-dashed border-slate-800 hover:border-slate-700 text-slate-400 hover:text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>{isEn ? '+ Add Set' : '+ सेट जोड़ें'}</span>
-            </button>
-          </div>
+          {/* ===================== STAGE 2: ACTIVE LIVE WORKOUT SESSION ===================== */}
+          {workoutState === 'active' && (
+            <div className="space-y-4 animate-in fade-in">
+              {/* Progress & Current Set Header */}
+              <div className="flex items-center justify-between bg-slate-950 p-3 rounded-2xl border border-slate-800">
+                <div className="flex items-center gap-2">
+                  <div className={`px-2.5 py-1 rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-1.5 ${
+                    phase === 'work' 
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 animate-pulse' 
+                      : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
+                  }`}>
+                    {phase === 'work' ? <Flame className="w-3.5 h-3.5" /> : <Coffee className="w-3.5 h-3.5" />}
+                    <span>
+                      {phase === 'work' 
+                        ? (isEn ? `SET ${currentSet} OF ${totalSets}` : `सेट ${currentSet} / ${totalSets}`)
+                        : (isEn ? `REST INTERVAL` : `रेस्ट समय`)}
+                    </span>
+                  </div>
+
+                  <span className="text-[11px] text-slate-400 font-semibold hidden sm:inline">
+                    {isEn ? `Total Time: ${formatTime(totalTimeSpentSec)}` : `कुल समय: ${formatTime(totalTimeSpentSec)}`}
+                  </span>
+                </div>
+
+                {/* Video Demo Toggle */}
+                <button
+                  onClick={() => setShowVideo(!showVideo)}
+                  className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                >
+                  <Video className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{showVideo ? (isEn ? 'Hide Video' : 'वीडियो छिपाएं') : (isEn ? 'Watch Form' : 'वीडियो देखें')}</span>
+                </button>
+              </div>
+
+              {/* Video Player when opened */}
+              {showVideo && (
+                <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-inner animate-in fade-in">
+                  <ExerciseVideoPlayer
+                    exerciseId={exercise.id}
+                    targetMuscle={exercise.targetMuscle}
+                    exerciseName={exercise.name}
+                    autoPlayVideo={false}
+                    language={language}
+                  />
+                </div>
+              )}
+
+              {/* Central Big Circular / Card Countdown Timer */}
+              <div className={`p-6 rounded-3xl border text-center transition-all shadow-xl relative overflow-hidden ${
+                phase === 'work'
+                  ? 'bg-gradient-to-b from-emerald-950/40 to-slate-950 border-emerald-500/40 shadow-emerald-500/10'
+                  : 'bg-gradient-to-b from-cyan-950/40 to-slate-950 border-cyan-500/40 shadow-cyan-500/10'
+              }`}>
+                {/* Background pulse glow */}
+                <div className={`absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl pointer-events-none opacity-30 ${
+                  phase === 'work' ? 'bg-emerald-500' : 'bg-cyan-500'
+                }`} />
+
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                  {phase === 'work' 
+                    ? (isEn ? 'WORKOUT DURATION' : 'कसरत समय (रेप्स लगाएं)')
+                    : (isEn ? 'REST & RECOVER' : 'रेस्ट समय (सांस लें)')}
+                </span>
+
+                {/* Big Countdown Number */}
+                <div className={`font-mono text-5xl sm:text-6xl font-black tracking-tight my-2 drop-shadow-md ${
+                  phase === 'work' ? 'text-emerald-400' : 'text-cyan-400'
+                }`}>
+                  {formatTime(timeLeft)}
+                </div>
+
+                {/* Set dots indicator */}
+                <div className="flex items-center justify-center gap-1.5 my-3">
+                  {Array.from({ length: totalSets }).map((_, idx) => (
+                    <div
+                      key={idx}
+                      className={`h-2 rounded-full transition-all ${
+                        idx + 1 < currentSet
+                          ? 'w-6 bg-amber-400'
+                          : idx + 1 === currentSet
+                          ? (phase === 'work' ? 'w-8 bg-emerald-400 animate-pulse' : 'w-8 bg-cyan-400')
+                          : 'w-2 bg-slate-800'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                {/* LIVE BREATHING PROMPT (During Exercise & Rest) */}
+                <div className="mt-4 pt-3 border-t border-slate-800/80 bg-slate-950/70 p-3 rounded-2xl text-xs space-y-1 text-left">
+                  <div className="flex items-center gap-1.5 text-cyan-400 font-bold mb-1">
+                    <Wind className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>{isEn ? 'Live Breathing Guide:' : 'सांस का नियम (Breathing):'}</span>
+                  </div>
+
+                  {phase === 'work' ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                      <div className="bg-cyan-950/40 border border-cyan-800/50 p-2 rounded-xl text-cyan-200">
+                        <strong className="block text-cyan-400 text-[11px]">🟢 {isEn ? 'Inhale:' : 'सांस अंदर:'}</strong>
+                        <span className="text-[11px] leading-snug">{guide.breathing.inhale}</span>
+                      </div>
+                      <div className="bg-rose-950/40 border border-rose-800/50 p-2 rounded-xl text-rose-200">
+                        <strong className="block text-rose-400 text-[11px]">🔴 {isEn ? 'Exhale:' : 'सांस बाहर:'}</strong>
+                        <span className="text-[11px] leading-snug">{guide.breathing.exhale}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-slate-300 text-xs italic bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                      🫁 <strong>{isEn ? 'Rest Breathing:' : 'रेस्ट के दौरान सांस:'}</strong> {guide.breathing.tip}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Timer Controls Row */}
+              <div className="flex items-center justify-center gap-2.5 flex-wrap">
+                {/* Adjust -10s */}
+                <button
+                  onClick={() => handleAdjustTime(-10)}
+                  className="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer transition active:scale-95"
+                  title="-10s"
+                >
+                  -10s
+                </button>
+
+                {/* Pause / Resume */}
+                {isRunning ? (
+                  <button
+                    onClick={() => setIsRunning(false)}
+                    className="px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm flex items-center gap-2 cursor-pointer transition shadow-lg shadow-amber-500/20 active:scale-95"
+                  >
+                    <Pause className="w-4 h-4 fill-slate-950" />
+                    <span>{isEn ? 'Pause' : 'रोकें'}</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setIsRunning(true)}
+                    className="px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm flex items-center gap-2 cursor-pointer transition shadow-lg shadow-emerald-500/20 active:scale-95"
+                  >
+                    <Play className="w-4 h-4 fill-slate-950" />
+                    <span>{isEn ? 'Resume' : 'शुरू करें'}</span>
+                  </button>
+                )}
+
+                {/* Adjust +10s */}
+                <button
+                  onClick={() => handleAdjustTime(+10)}
+                  className="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer transition active:scale-95"
+                  title="+10s"
+                >
+                  +10s
+                </button>
+
+                {/* Complete Set Early or Skip Rest */}
+                {phase === 'work' ? (
+                  <button
+                    onClick={handleFinishSetEarly}
+                    className="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition active:scale-95"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>{isEn ? 'Set Done Early' : 'सेट पूरा हुआ'}</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSkipRest}
+                    className="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition active:scale-95"
+                  >
+                    <SkipForward className="w-4 h-4" />
+                    <span>{isEn ? 'Skip Rest' : 'रेस्ट छोड़ें'}</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Adjust Settings shortcut */}
+              <div className="text-center pt-2">
+                <button
+                  onClick={() => {
+                    setIsRunning(false);
+                    setWorkoutState('setup');
+                  }}
+                  className="text-xs text-slate-400 hover:text-amber-400 underline underline-offset-4 cursor-pointer transition"
+                >
+                  {isEn ? '⚙️ Reconfigure Sets or Timers' : '⚙️ टाइमर व सेट्स दोबारा सेट करें'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ===================== STAGE 3: COMPLETED SCREEN ===================== */}
+          {workoutState === 'completed' && (
+            <div className="text-center py-6 space-y-4 animate-in zoom-in-95 duration-200">
+              <div className="w-16 h-16 rounded-3xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center mx-auto shadow-xl shadow-amber-500/20">
+                <Award className="w-9 h-9" />
+              </div>
+
+              <div className="space-y-1">
+                <h3 className="text-xl font-black text-white">
+                  {isEn ? 'Exercise Completed! 🎉' : 'कसरत सफलतापूर्वक पूरी हुई! 🎉'}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  {isEn ? `Awesome job crushing ${exercise.name}!` : `शानदार प्रदर्शन! आपने ${exercise.hindiName} पूरा कर लिया!`}
+                </p>
+              </div>
+
+              {/* Summary Badges */}
+              <div className="grid grid-cols-3 gap-2.5 max-w-sm mx-auto text-center pt-2">
+                <div className="bg-slate-950 border border-slate-800 p-3 rounded-2xl">
+                  <span className="text-[10px] text-slate-400 uppercase font-bold block">{isEn ? 'Sets Done' : 'कुल सेट्स'}</span>
+                  <span className="text-lg font-black text-amber-400 font-mono">{totalSets}</span>
+                </div>
+                <div className="bg-slate-950 border border-slate-800 p-3 rounded-2xl">
+                  <span className="text-[10px] text-slate-400 uppercase font-bold block">{isEn ? 'Total Time' : 'कुल समय'}</span>
+                  <span className="text-lg font-black text-emerald-400 font-mono">{formatTime(totalTimeSpentSec)}</span>
+                </div>
+                <div className="bg-slate-950 border border-slate-800 p-3 rounded-2xl">
+                  <span className="text-[10px] text-slate-400 uppercase font-bold block">{isEn ? 'Muscle' : 'मसल'}</span>
+                  <span className="text-xs font-bold text-cyan-400 truncate block mt-1">{exercise.targetMuscle}</span>
+                </div>
+              </div>
+
+              <div className="pt-4 max-w-xs mx-auto">
+                <button
+                  onClick={handleFinalSave}
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-sm cursor-pointer transition shadow-xl shadow-amber-500/25 active:scale-98"
+                >
+                  {isEn ? 'Save & Finish Workout' : 'सेव करें और वापस जाएं'}
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
 
-        {/* Modal Bottom Footer */}
-        <div className="sticky bottom-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-4 sm:p-5 flex items-center justify-between gap-3">
-          <div className="text-xs text-slate-400">
-            {isEn ? 'Completed Sets:' : 'पूरे किए गए सेट्स:'}{' '}
-            <strong className="text-white">{completedSetsCount} / {sets.length}</strong>
-          </div>
-
-          <button
-            onClick={handleFinish}
-            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm cursor-pointer shadow-lg shadow-orange-500/20 flex items-center gap-2 transition"
-          >
-            <Award className="w-4 h-4" />
-            <span>{isEn ? 'Finish Workout & Save' : 'वर्कआउट पूरा करें व सेव करें'}</span>
-          </button>
-        </div>
       </div>
     </div>
   );

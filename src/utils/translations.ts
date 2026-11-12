@@ -39,11 +39,15 @@ export interface Translations {
   customDietMaker: string;
   createCustomDiet: string;
   customTimer: string;
+  workoutPlans: string;
+  workoutTracker: string;
 }
 
 export const TRANSLATIONS: Record<AppLanguage, Translations> = {
   en: {
     workouts: 'Workouts',
+    workoutPlans: 'Workout Plans',
+    workoutTracker: 'Workout Tracker',
     diet: 'Diet & Nutrition',
     waterTracker: 'Water Tracker',
     dailyLog: 'Daily Log',
@@ -120,6 +124,8 @@ export const TRANSLATIONS: Record<AppLanguage, Translations> = {
     language: 'भाषा',
     customDietMaker: 'कस्टम डाइट मेकर',
     createCustomDiet: 'खुद का डाइट प्लान बनाएं',
-    customTimer: 'कस्टम टाइमर'
+    customTimer: 'कस्टम टाइमर',
+    workoutPlans: 'वर्कआउट प्लान्स',
+    workoutTracker: 'वर्कआउट ट्रैकर'
   }
 };

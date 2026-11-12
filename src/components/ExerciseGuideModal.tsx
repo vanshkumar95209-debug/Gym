@@ -2,23 +2,25 @@ import React, { useState } from 'react';
 import { 
   X, 
   Play, 
-  AlertTriangle, 
   Wind, 
-  Target, 
-  Compass, 
-  Zap, 
-  CheckCircle2, 
-  Video 
+  Minus,
+  Plus,
+  Timer,
+  Flame,
+  Coffee
 } from 'lucide-react';
 import { Exercise, AppLanguage } from '../types';
 import { ExerciseVideoPlayer } from './ExerciseVideoPlayer';
 import { getExerciseGuide } from '../data/exerciseGuides';
-import { TRANSLATIONS } from '../utils/translations';
+import { playIntervalChangeSound } from '../utils/audio';
 
 interface ExerciseGuideModalProps {
   exercise: Exercise;
   onClose: () => void;
-  onStartWorkout: (exercise: Exercise) => void;
+  onStartWorkout: (
+    exercise: Exercise, 
+    timerSettings?: { sets: number; workoutTime: number; restTime: number }
+  ) => void;
   language?: AppLanguage;
 }
 
@@ -30,11 +32,25 @@ export const ExerciseGuideModal: React.FC<ExerciseGuideModalProps> = ({
 }) => {
   const guide = getExerciseGuide(exercise, language);
   const isEn = language === 'en';
-  const [activeTab, setActiveTab] = useState<'all' | 'position' | 'execution' | 'breathing'>('all');
+
+  // Workout Timer & Sets configuration before starting exercise
+  const [setsCount, setSetsCount] = useState<number>(3);
+  const [workoutTime, setWorkoutTime] = useState<number>(40); // in seconds
+  const [restTime, setRestTime] = useState<number>(60); // in seconds
+
+  const handleStart = () => {
+    playIntervalChangeSound(true);
+    onClose();
+    onStartWorkout(exercise, {
+      sets: Math.max(1, setsCount),
+      workoutTime: Math.max(5, workoutTime),
+      restTime: Math.max(0, restTime)
+    });
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl sm:rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-y-auto p-4 sm:p-6 space-y-4 shadow-2xl relative">
+      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl sm:rounded-3xl w-full max-w-2xl max-h-[94vh] overflow-y-auto p-4 sm:p-6 space-y-4 shadow-2xl relative">
         
         {/* Top Header */}
         <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
@@ -68,7 +84,7 @@ export const ExerciseGuideModal: React.FC<ExerciseGuideModalProps> = ({
           </button>
         </div>
 
-        {/* Real Demonstration: Real YouTube Video & HD Form Photo */}
+        {/* Real Demonstration: Real YouTube Video Player */}
         <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-inner">
           <ExerciseVideoPlayer
             exerciseId={exercise.id}
@@ -79,188 +95,175 @@ export const ExerciseGuideModal: React.FC<ExerciseGuideModalProps> = ({
           />
         </div>
 
-        {/* Section Tabs for quick navigation */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-b border-slate-800 text-xs">
-          <button
-            onClick={() => setActiveTab('all')}
-            className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap cursor-pointer transition ${
-              activeTab === 'all'
-                ? 'bg-amber-500 text-slate-950'
-                : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-            }`}
-          >
-            {isEn ? '📖 Full Guide' : '📖 पूरी गाइड'}
-          </button>
-          <button
-            onClick={() => setActiveTab('position')}
-            className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap cursor-pointer transition ${
-              activeTab === 'position'
-                ? 'bg-amber-500 text-slate-950'
-                : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-            }`}
-          >
-            {isEn ? '📍 1. Setup & Stance' : '📍 1. सही पोजीशन'}
-          </button>
-          <button
-            onClick={() => setActiveTab('execution')}
-            className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap cursor-pointer transition ${
-              activeTab === 'execution'
-                ? 'bg-amber-500 text-slate-950'
-                : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-            }`}
-          >
-            {isEn ? '🎯 2. How to Perform' : '🎯 2. कैसे करें'}
-          </button>
-          <button
-            onClick={() => setActiveTab('breathing')}
-            className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap cursor-pointer transition ${
-              activeTab === 'breathing'
-                ? 'bg-amber-500 text-slate-950'
-                : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-            }`}
-          >
-            {isEn ? '🫁 3. Breathing' : '🫁 3. सांस का नियम'}
-          </button>
-        </div>
-
-        {/* Form Guide Details (Consistent single language!) */}
-        <div className="space-y-3.5 text-xs sm:text-sm">
-          {/* 1. STARTING POSITION & SETUP */}
-          {(activeTab === 'all' || activeTab === 'position') && (
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3.5 sm:p-4 space-y-2.5">
-              <div className="flex items-center gap-2 text-amber-400 font-bold text-xs sm:text-sm border-b border-slate-800/80 pb-1.5">
-                <Compass className="w-4 h-4 text-amber-400" />
-                <span>{guide.positionSetup.heading}</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800/60">
-                  <span className="font-bold text-slate-200 block mb-0.5">
-                    {isEn ? '🧘 Body Stance / Bench:' : '🧘 शरीर / बैठने का तरीका:'}
-                  </span>
-                  <span className="text-slate-300 leading-relaxed">{guide.positionSetup.stance}</span>
-                </div>
-
-                <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800/60">
-                  <span className="font-bold text-slate-200 block mb-0.5">
-                    {isEn ? '✋ Grip & Hand Placement:' : '✋ ग्रिप और हाथों की पकड़:'}
-                  </span>
-                  <span className="text-slate-300 leading-relaxed">{guide.positionSetup.grip}</span>
-                </div>
-
-                <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800/60">
-                  <span className="font-bold text-slate-200 block mb-0.5">
-                    {isEn ? '🛡️ Spine & Scapulae Posture:' : '🛡️ पीठ व छाती का पोश्चर:'}
-                  </span>
-                  <span className="text-slate-300 leading-relaxed">{guide.positionSetup.posture}</span>
-                </div>
-
-                <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800/60">
-                  <span className="font-bold text-slate-200 block mb-0.5">
-                    {isEn ? '👟 Feet & Foundation:' : '👟 पैर व संतुलन:'}
-                  </span>
-                  <span className="text-slate-300 leading-relaxed">{guide.positionSetup.feet}</span>
-                </div>
-              </div>
+        {/* ONLY BREATHING TECHNIQUE (Guide removed as per user request) */}
+        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3.5 sm:p-4 space-y-2.5">
+          <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
+            <div className="flex items-center gap-2 text-cyan-400 font-bold text-xs sm:text-sm">
+              <Wind className="w-4 h-4 text-cyan-400" />
+              <span>{isEn ? 'Breathing Technique (सांस का नियम)' : 'सांस का नियम (Breathing Technique)'}</span>
             </div>
-          )}
+            <span className="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded-md border border-slate-800">
+              {isEn ? 'Rule for this exercise' : 'इस कसरत के लिए'}
+            </span>
+          </div>
 
-          {/* 2. HOW TO PERFORM / EXECUTION STEPS */}
-          {(activeTab === 'all' || activeTab === 'execution') && (
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3.5 sm:p-4 space-y-2.5">
-              <div className="flex items-center gap-2 text-amber-400 font-bold text-xs sm:text-sm border-b border-slate-800/80 pb-1.5">
-                <Target className="w-4 h-4 text-amber-400" />
-                <span>{guide.executionSteps.heading}</span>
-              </div>
-
-              <div className="space-y-2 text-xs">
-                {/* Step 1 Negative */}
-                <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800/60 flex items-start gap-2.5">
-                  <span className="w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 font-black flex items-center justify-center shrink-0 text-[11px] mt-0.5">
-                    ⬇️
-                  </span>
-                  <div>
-                    <span className="font-bold text-slate-200 block">
-                      {isEn ? 'Phase 1: Lowering (Eccentric Stretch)' : 'कदम 1: नीचे लाना (खिंचाव)'}
-                    </span>
-                    <span className="text-slate-300 leading-relaxed">{guide.executionSteps.step1Negative}</span>
-                  </div>
-                </div>
-
-                {/* Step 2 Positive */}
-                <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800/60 flex items-start gap-2.5">
-                  <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-black flex items-center justify-center shrink-0 text-[11px] mt-0.5">
-                    ⬆️
-                  </span>
-                  <div>
-                    <span className="font-bold text-slate-200 block">
-                      {isEn ? 'Phase 2: Lifting / Pressing (Concentric Squeeze)' : 'कदम 2: ऊपर उठाना / धकेलना (संकुचन)'}
-                    </span>
-                    <span className="text-slate-300 leading-relaxed">{guide.executionSteps.step2Positive}</span>
-                  </div>
-                </div>
-
-                {/* Tempo */}
-                <div className="bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-xl text-amber-300 text-[11px] font-medium flex items-center gap-2">
-                  <Zap className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                  <span><strong>{isEn ? 'Cadence (Tempo):' : 'गति (Tempo):'}</strong> {guide.executionSteps.tempoGuide}</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 3. BREATHING TECHNIQUE */}
-          {(activeTab === 'all' || activeTab === 'breathing') && (
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3.5 sm:p-4 space-y-2">
-              <div className="flex items-center gap-2 text-cyan-400 font-bold text-xs sm:text-sm border-b border-slate-800/80 pb-1.5">
-                <Wind className="w-4 h-4 text-cyan-400" />
-                <span>{guide.breathing.heading}</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                <div className="p-2.5 rounded-xl bg-cyan-950/30 border border-cyan-800/40 text-cyan-200">
-                  <span className="font-bold block text-cyan-400 mb-0.5">
-                    {isEn ? '🟢 Inhale (Breathe In):' : '🟢 सांस अंदर लें:'}
-                  </span>
-                  <span>{guide.breathing.inhale}</span>
-                </div>
-
-                <div className="p-2.5 rounded-xl bg-rose-950/30 border border-rose-800/40 text-rose-200">
-                  <span className="font-bold block text-rose-400 mb-0.5">
-                    {isEn ? '🔴 Exhale (Breathe Out):' : '🔴 सांस बाहर छोड़ें:'}
-                  </span>
-                  <span>{guide.breathing.exhale}</span>
-                </div>
-              </div>
-
-              <p className="text-[11px] text-slate-400 italic pt-1">
-                💡 {guide.breathing.tip}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+            <div className="p-3 rounded-xl bg-cyan-950/30 border border-cyan-800/40 text-cyan-200 space-y-1">
+              <span className="font-bold flex items-center gap-1.5 text-cyan-400 text-xs">
+                <span>🟢</span>
+                <span>{isEn ? 'Inhale (सांस अंदर लें):' : 'सांस अंदर लें (Inhale):'}</span>
+              </span>
+              <p className="text-slate-300 leading-relaxed text-[11px] sm:text-xs">
+                {guide.breathing.inhale}
               </p>
             </div>
-          )}
 
-          {/* 4. MISTAKES TO AVOID */}
-          {activeTab === 'all' && (
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3.5 sm:p-4 space-y-2">
-              <div className="flex items-center gap-2 text-rose-400 font-bold text-xs sm:text-sm border-b border-slate-800/80 pb-1.5">
-                <AlertTriangle className="w-4 h-4 text-rose-400" />
-                <span>{guide.mistakes.heading}</span>
-              </div>
+            <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-800/40 text-rose-200 space-y-1">
+              <span className="font-bold flex items-center gap-1.5 text-rose-400 text-xs">
+                <span>🔴</span>
+                <span>{isEn ? 'Exhale (सांस बाहर छोड़ें):' : 'सांस बाहर छोड़ें (Exhale):'}</span>
+              </span>
+              <p className="text-slate-300 leading-relaxed text-[11px] sm:text-xs">
+                {guide.breathing.exhale}
+              </p>
+            </div>
+          </div>
 
-              <ul className="space-y-1.5 text-xs text-slate-300">
-                {guide.mistakes.items.map((m, idx) => (
-                  <li key={idx} className="flex items-start gap-2 bg-rose-500/5 p-2 rounded-lg border border-rose-500/10">
-                    <span className="text-rose-400 font-bold">✕</span>
-                    <span>{m}</span>
-                  </li>
-                ))}
-              </ul>
+          <div className="p-2.5 bg-slate-900/80 rounded-xl border border-slate-800/80 text-[11px] text-slate-300 flex items-start gap-2">
+            <span className="text-amber-400 font-bold">💡</span>
+            <span className="italic leading-relaxed">{guide.breathing.tip}</span>
+          </div>
+        </div>
 
-              <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-300 text-xs">
-                🔥 <strong>{guide.proTip.heading}:</strong> {guide.proTip.text}
+        {/* WORKOUT TIMER & SETS CONFIGURATION (Before Starting Exercise) */}
+        <div className="bg-slate-950 border border-amber-500/30 rounded-2xl p-3.5 sm:p-4 space-y-3 shadow-lg shadow-amber-500/5">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div className="flex items-center gap-2 text-amber-400 font-bold text-xs sm:text-sm">
+              <Timer className="w-4 h-4 text-amber-400" />
+              <span>{isEn ? 'Timer & Sets Setup' : 'टाइमर और सेट्स सेटिंग्स'}</span>
+            </div>
+            <span className="text-[10px] text-amber-400 font-semibold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+              {isEn ? 'Customize before start' : 'शुरू करने से पहले सेट करें'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            {/* 1. Sets Count */}
+            <div className="space-y-1.5 text-center">
+              <label className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
+                {isEn ? 'Sets' : 'कुल सेट्स'}
+              </label>
+              <div className="flex items-center justify-center gap-0.5 bg-slate-900 border border-slate-800 rounded-xl p-1 focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500/30 transition-all">
+                <button
+                  type="button"
+                  onClick={() => setSetsCount(s => Math.max(1, s - 1))}
+                  className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition active:scale-95 cursor-pointer"
+                  title="-1 Set"
+                >
+                  <Minus className="w-3.5 h-3.5" />
+                </button>
+                <input
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={setsCount || ''}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    setSetsCount(isNaN(val) ? 1 : Math.max(1, Math.min(20, val)));
+                  }}
+                  onBlur={() => {
+                    if (!setsCount || setsCount < 1) setSetsCount(1);
+                  }}
+                  className="w-10 sm:w-12 text-center bg-transparent font-mono font-black text-white text-sm outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setSetsCount(s => Math.min(20, s + 1))}
+                  className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition active:scale-95 cursor-pointer"
+                  title="+1 Set"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
-          )}
+
+            {/* 2. Workout Time Per Set */}
+            <div className="space-y-1.5 text-center">
+              <label className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block flex items-center justify-center gap-1">
+                <Flame className="w-2.5 h-2.5 text-emerald-400" />
+                <span>{isEn ? 'Work (Sec)' : 'वर्कआउट (सेकंड)'}</span>
+              </label>
+              <div className="flex items-center justify-center gap-0.5 bg-slate-900 border border-slate-800 rounded-xl p-1 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/30 transition-all">
+                <button
+                  type="button"
+                  onClick={() => setWorkoutTime(w => Math.max(5, w - 5))}
+                  className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition active:scale-95 cursor-pointer"
+                  title="-5s"
+                >
+                  <Minus className="w-3.5 h-3.5" />
+                </button>
+                <input
+                  type="number"
+                  min="5"
+                  max="300"
+                  value={workoutTime || ''}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    setWorkoutTime(isNaN(val) ? 5 : Math.max(5, Math.min(300, val)));
+                  }}
+                  onBlur={() => {
+                    if (!workoutTime || workoutTime < 5) setWorkoutTime(5);
+                  }}
+                  className="w-10 sm:w-12 text-center bg-transparent font-mono font-black text-white text-sm outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setWorkoutTime(w => Math.min(300, w + 5))}
+                  className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition active:scale-95 cursor-pointer"
+                  title="+5s"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            {/* 3. Rest Time Between Sets */}
+            <div className="space-y-1.5 text-center">
+              <label className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider block flex items-center justify-center gap-1">
+                <Coffee className="w-2.5 h-2.5 text-cyan-400" />
+                <span>{isEn ? 'Rest (Sec)' : 'रेस्ट (सेकंड)'}</span>
+              </label>
+              <div className="flex items-center justify-center gap-0.5 bg-slate-900 border border-slate-800 rounded-xl p-1 focus-within:border-cyan-500 focus-within:ring-1 focus-within:ring-cyan-500/30 transition-all">
+                <button
+                  type="button"
+                  onClick={() => setRestTime(r => Math.max(0, r - 5))}
+                  className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition active:scale-95 cursor-pointer"
+                  title="-5s"
+                >
+                  <Minus className="w-3.5 h-3.5" />
+                </button>
+                <input
+                  type="number"
+                  min="0"
+                  max="300"
+                  value={restTime === 0 ? '0' : (restTime || '')}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    setRestTime(isNaN(val) ? 0 : Math.max(0, Math.min(300, val)));
+                  }}
+                  className="w-10 sm:w-12 text-center bg-transparent font-mono font-black text-white text-sm outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setRestTime(r => Math.min(300, r + 5))}
+                  className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition active:scale-95 cursor-pointer"
+                  title="+5s"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Action Footer */}
@@ -269,18 +272,15 @@ export const ExerciseGuideModal: React.FC<ExerciseGuideModalProps> = ({
             onClick={onClose}
             className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm cursor-pointer transition text-center"
           >
-            {isEn ? 'Back' : 'वापस जाएं'}
+            {isEn ? 'Back' : 'वापस'}
           </button>
 
           <button
-            onClick={() => {
-              onClose();
-              onStartWorkout(exercise);
-            }}
-            className="flex-2 py-3 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm cursor-pointer transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
+            onClick={handleStart}
+            className="flex-2 py-3 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm cursor-pointer transition shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 active:scale-98"
           >
             <Play className="w-4 h-4 fill-slate-950" />
-            <span>{isEn ? 'Start Workout' : 'कसरत शुरू करें'}</span>
+            <span>{isEn ? 'Start Exercise' : 'कसरत शुरू करें'}</span>
           </button>
         </div>
 

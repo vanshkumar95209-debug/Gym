@@ -6,6 +6,8 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { WorkoutExplorer } from './components/WorkoutExplorer';
+import { WorkoutPlans } from './components/WorkoutPlans';
+import { WorkoutTracker } from './components/WorkoutTracker';
 import { DietDirectory } from './components/DietDirectory';
 import { WaterTracker } from './components/WaterTracker';
 import { ProfileModal } from './components/ProfileModal';
@@ -25,6 +27,7 @@ import {
   getStoredLanguage,
   saveStoredLanguage,
   saveWorkoutLog,
+  getStoredWorkoutLogs,
   getLocalDateString
 } from './utils/storage';
 import { 
@@ -32,7 +35,7 @@ import {
   UserFitnessProfile, 
   Exercise, 
   DailyWaterLog,
-  AppLanguage,
+  AppLanguage, 
   DailyWorkoutLog 
 } from './types';
 import { TRANSLATIONS } from './utils/translations';
@@ -41,8 +44,9 @@ import confetti from 'canvas-confetti';
 import { playStreakFanfare } from './utils/audio';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'workouts' | 'diet' | 'water'>('workouts');
-  const [language, setLanguage] = useState<AppLanguage>('en'); // Default to English as explicitly requested!
+  const todayStr = getLocalDateString();
+  const [activeTab, setActiveTab] = useState<'workouts' | 'plans' | 'tracker' | 'diet' | 'water'>('workouts');
+  const [language, setLanguage] = useState<AppLanguage>(() => getStoredLanguage());
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
   const [showCustomTimerModal, setShowCustomTimerModal] = useState<boolean>(false);
   const [activeRoutineExercise, setActiveRoutineExercise] = useState<Exercise | null>(null);
@@ -50,13 +54,14 @@ export default function App() {
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
 
-  // Stored States
-  const [todayDietLogs, setTodayDietLogs] = useState<DailyDietLogItem[]>([]);
-  const [userProfile, setUserProfile] = useState<UserFitnessProfile>(getStoredProfile());
-  const [favorites, setFavorites] = useState<string[]>([]);
-
-  const todayStr = getLocalDateString();
-  const [waterLog, setWaterLog] = useState<DailyWaterLog>(getStoredWaterLog(todayStr));
+  // Stored States: Initialized synchronously from localStorage so data is immediately visible
+  const [todayDietLogs, setTodayDietLogs] = useState<DailyDietLogItem[]>(() => getStoredDietLogs(todayStr));
+  const [userProfile, setUserProfile] = useState<UserFitnessProfile>(() => getStoredProfile());
+  const [favorites, setFavorites] = useState<string[]>(() => getFavoriteExercises());
+  const [waterLog, setWaterLog] = useState<DailyWaterLog>(() => getStoredWaterLog(todayStr));
+  const [todayWorkoutLogs, setTodayWorkoutLogs] = useState<DailyWorkoutLog[]>(() => {
+    return getStoredWorkoutLogs().filter(l => l.date === todayStr);
+  });
 
   // Touch gesture listeners for pulling menu from left edge
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -187,6 +192,7 @@ export default function App() {
       ]
     };
     saveWorkoutLog(workoutLog);
+    setTodayWorkoutLogs(getStoredWorkoutLogs().filter(l => l.date === todayStr));
 
     // Audio & celebratory confetti
     playStreakFanfare();
@@ -216,6 +222,7 @@ export default function App() {
         isMobileDrawerOpen={isMobileNavOpen}
         onOpenMobileDrawer={() => setIsMobileNavOpen(true)}
         onCloseMobileDrawer={() => setIsMobileNavOpen(false)}
+        onOpenCustomTimer={() => setShowCustomTimerModal(true)}
       />
 
       {/* Main Content: Full width on mobile (no awkward left padding), edge-to-edge responsiveness */}
@@ -226,6 +233,26 @@ export default function App() {
             favorites={favorites}
             onToggleFavorite={handleToggleFavorite}
             language={language}
+            onOpenCustomTimer={() => setShowCustomTimerModal(true)}
+            todayWorkoutLogs={todayWorkoutLogs}
+          />
+        )}
+
+        {activeTab === 'plans' && (
+          <WorkoutPlans
+            language={language}
+            onOpenTracker={() => setActiveTab('tracker')}
+            onPlanCompleted={() => {
+              setTodayWorkoutLogs(getStoredWorkoutLogs().filter(l => l.date === todayStr));
+            }}
+          />
+        )}
+
+        {activeTab === 'tracker' && (
+          <WorkoutTracker
+            language={language}
+            onOpenPlans={() => setActiveTab('plans')}
+            onOpenWorkouts={() => setActiveTab('workouts')}
           />
         )}
 
@@ -291,6 +318,15 @@ export default function App() {
           userProfile={userProfile}
           onUpdateProfile={handleUpdateProfile}
           onClose={() => setShowProfileModal(false)}
+          language={language}
+        />
+      )}
+
+      {/* Custom Gym Timer Modal (Rest, HIIT & Stopwatch) */}
+      {showCustomTimerModal && (
+        <CustomTimerModal
+          isOpen={showCustomTimerModal}
+          onClose={() => setShowCustomTimerModal(false)}
           language={language}
         />
       )}

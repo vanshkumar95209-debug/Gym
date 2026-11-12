@@ -5,7 +5,8 @@ import {
   UserFitnessProfile, 
   DailyWaterLog, 
   AppLanguage, 
-  CustomDietPlan
+  CustomDietPlan,
+  DailyWorkoutGoal
 } from '../types';
 
 const STORAGE_KEYS = {
@@ -13,11 +14,12 @@ const STORAGE_KEYS = {
   BODY_METRICS: 'ironpulse_body_metrics_v1',
   DIET_LOGS: 'ironpulse_diet_logs_v1',
   USER_PROFILE: 'ironpulse_user_profile_v1',
-  FAVORITES: 'ironpulse_favorite_exercises_v1',
+  FAVORITES: 'ironpulse_favorite_exercises_v2',
   WATER_LOGS: 'ironpulse_water_logs_v1',
   LANGUAGE: 'ironpulse_app_language_v1',
   CUSTOM_DIET_PLANS: 'ironpulse_custom_diet_plans_v1',
-  STREAK: 'ironpulse_workout_streak_v1'
+  STREAK: 'ironpulse_workout_streak_v1',
+  DAILY_WORKOUT_GOAL: 'ironpulse_daily_workout_goal_v1'
 };
 
 export function getLocalDateString(d: Date = new Date()): string {
@@ -282,10 +284,33 @@ export function saveStoredProfile(profile: UserFitnessProfile): UserFitnessProfi
 
 export function getFavoriteExercises(): string[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.FAVORITES);
-    return raw ? JSON.parse(raw) : ['chest-flat-bench-press', 'biceps-barbell-curl', 'back-lat-pulldown'];
+    const rawV2 = localStorage.getItem(STORAGE_KEYS.FAVORITES);
+    if (rawV2 !== null) {
+      const parsed = JSON.parse(rawV2);
+      return Array.isArray(parsed) ? parsed : [];
+    }
+
+    // Check v1: if v1 exists and is not the old default seeded array, migrate it, otherwise clean to []
+    const oldV1 = localStorage.getItem('ironpulse_favorite_exercises_v1');
+    if (oldV1) {
+      const parsedOld = JSON.parse(oldV1);
+      if (Array.isArray(parsedOld)) {
+        const isMockSeed = (
+          (parsedOld.length === 2 && parsedOld.includes('biceps-barbell-curl') && parsedOld.includes('back-lat-pulldown')) ||
+          (parsedOld.length === 3 && parsedOld.includes('chest-flat-bench-press') && parsedOld.includes('biceps-barbell-curl') && parsedOld.includes('back-lat-pulldown'))
+        );
+
+        if (!isMockSeed && parsedOld.length > 0) {
+          localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(parsedOld));
+          return parsedOld;
+        }
+      }
+    }
+
+    localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify([]));
+    return [];
   } catch {
-    return ['chest-flat-bench-press'];
+    return [];
   }
 }
 
@@ -455,6 +480,54 @@ export function deleteStoredCustomDietPlan(id: string): CustomDietPlan[] {
     return [];
   }
 }
+
+// ===================== DAILY WORKOUT GOAL TRACKER =====================
+export function getStoredDailyWorkoutGoal(dateStr: string): DailyWorkoutGoal {
+  const defaultGoal: DailyWorkoutGoal = {
+    date: dateStr,
+    targetMinutes: 30, // User request: "jaise ki aaj 30min exercise karni hai"
+    achievedMinutes: 0
+  };
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.DAILY_WORKOUT_GOAL);
+    if (!raw) return defaultGoal;
+    const all = JSON.parse(raw);
+    const found = all.find((item: DailyWorkoutGoal) => item.date === dateStr);
+    return found ? found : defaultGoal;
+  } catch {
+    return defaultGoal;
+  }
+}
+
+export function saveStoredDailyWorkoutGoal(goal: DailyWorkoutGoal): DailyWorkoutGoal {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.DAILY_WORKOUT_GOAL);
+    const all: DailyWorkoutGoal[] = raw ? JSON.parse(raw) : [];
+    const index = all.findIndex(item => item.date === goal.date);
+    let updated: DailyWorkoutGoal[];
+    if (index >= 0) {
+      updated = [...all];
+      updated[index] = goal;
+    } else {
+      updated = [goal, ...all];
+    }
+    localStorage.setItem(STORAGE_KEYS.DAILY_WORKOUT_GOAL, JSON.stringify(updated));
+    return goal;
+  } catch {
+    return goal;
+  }
+}
+
+export function addWorkoutMinutesToGoal(minutes: number, dateStr: string): DailyWorkoutGoal {
+  const current = getStoredDailyWorkoutGoal(dateStr);
+  const updated: DailyWorkoutGoal = {
+    ...current,
+    achievedMinutes: Math.max(0, current.achievedMinutes + minutes)
+  };
+  return saveStoredDailyWorkoutGoal(updated);
+}
+
 
 
 

@@ -574,31 +574,57 @@ export const CustomTimerModal: React.FC<CustomTimerModalProps> = ({
                   {isEn ? 'Interval Settings:' : 'इंटरवल सेटिंग्स:'}
                 </span>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
                   {/* Work Duration */}
                   <div className="space-y-1.5 text-center">
-                    <label className="text-[10px] font-bold text-emerald-400 uppercase block">
+                    <label className="text-[10px] font-bold text-emerald-400 uppercase block tracking-wider">
                       {isEn ? 'Work (Sec)' : 'वर्क (सेकंड)'}
                     </label>
-                    <div className="flex items-center justify-center gap-1 bg-slate-900 border border-slate-800 rounded-xl p-1">
+                    <div className="flex items-center justify-center gap-0.5 bg-slate-900 border border-slate-800 rounded-xl p-1 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/30 transition-all">
                       <button
+                        type="button"
                         onClick={() => {
-                          const next = Math.max(10, workDuration - 5);
+                          const next = Math.max(5, workDuration - 5);
                           setWorkDuration(next);
                           if (intervalPhase === 'work' && !isIntervalRunning) setIntervalRemaining(next);
                         }}
-                        className="p-1 text-slate-400 hover:text-white"
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors active:scale-95 cursor-pointer"
+                        aria-label={isEn ? "Decrease work seconds" : "वर्क समय घटाएं"}
+                        title="-5s"
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </button>
-                      <span className="font-mono font-bold text-white text-sm w-7">{workDuration}</span>
+                      <input
+                        type="number"
+                        min="5"
+                        max="600"
+                        value={workDuration || ''}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          const safeVal = isNaN(val) ? 0 : Math.max(0, Math.min(600, val));
+                          setWorkDuration(safeVal);
+                          if (intervalPhase === 'work' && !isIntervalRunning && safeVal > 0) {
+                            setIntervalRemaining(safeVal);
+                          }
+                        }}
+                        onBlur={() => {
+                          if (!workDuration || workDuration < 5) {
+                            setWorkDuration(5);
+                            if (intervalPhase === 'work' && !isIntervalRunning) setIntervalRemaining(5);
+                          }
+                        }}
+                        className="w-10 sm:w-12 text-center bg-transparent font-mono font-black text-white text-sm outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-all"
+                      />
                       <button
+                        type="button"
                         onClick={() => {
-                          const next = workDuration + 5;
+                          const next = Math.min(600, workDuration + 5);
                           setWorkDuration(next);
                           if (intervalPhase === 'work' && !isIntervalRunning) setIntervalRemaining(next);
                         }}
-                        className="p-1 text-slate-400 hover:text-white"
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors active:scale-95 cursor-pointer"
+                        aria-label={isEn ? "Increase work seconds" : "वर्क समय बढ़ाएं"}
+                        title="+5s"
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
@@ -607,28 +633,48 @@ export const CustomTimerModal: React.FC<CustomTimerModalProps> = ({
 
                   {/* Rest Duration */}
                   <div className="space-y-1.5 text-center">
-                    <label className="text-[10px] font-bold text-cyan-400 uppercase block">
+                    <label className="text-[10px] font-bold text-cyan-400 uppercase block tracking-wider">
                       {isEn ? 'Rest (Sec)' : 'रेस्ट (सेकंड)'}
                     </label>
-                    <div className="flex items-center justify-center gap-1 bg-slate-900 border border-slate-800 rounded-xl p-1">
+                    <div className="flex items-center justify-center gap-0.5 bg-slate-900 border border-slate-800 rounded-xl p-1 focus-within:border-cyan-500 focus-within:ring-1 focus-within:ring-cyan-500/30 transition-all">
                       <button
+                        type="button"
                         onClick={() => {
-                          const next = Math.max(5, restDuration - 5);
+                          const next = Math.max(0, restDuration - 5);
                           setRestDuration(next);
                           if (intervalPhase === 'rest' && !isIntervalRunning) setIntervalRemaining(next);
                         }}
-                        className="p-1 text-slate-400 hover:text-white"
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors active:scale-95 cursor-pointer"
+                        aria-label={isEn ? "Decrease rest seconds" : "रेस्ट समय घटाएं"}
+                        title="-5s"
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </button>
-                      <span className="font-mono font-bold text-white text-sm w-7">{restDuration}</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="600"
+                        value={restDuration === 0 ? '0' : (restDuration || '')}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          const safeVal = isNaN(val) ? 0 : Math.max(0, Math.min(600, val));
+                          setRestDuration(safeVal);
+                          if (intervalPhase === 'rest' && !isIntervalRunning) {
+                            setIntervalRemaining(safeVal);
+                          }
+                        }}
+                        className="w-10 sm:w-12 text-center bg-transparent font-mono font-black text-white text-sm outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-all"
+                      />
                       <button
+                        type="button"
                         onClick={() => {
-                          const next = restDuration + 5;
+                          const next = Math.min(600, restDuration + 5);
                           setRestDuration(next);
                           if (intervalPhase === 'rest' && !isIntervalRunning) setIntervalRemaining(next);
                         }}
-                        className="p-1 text-slate-400 hover:text-white"
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors active:scale-95 cursor-pointer"
+                        aria-label={isEn ? "Increase rest seconds" : "रेस्ट समय बढ़ाएं"}
+                        title="+5s"
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
@@ -637,20 +683,42 @@ export const CustomTimerModal: React.FC<CustomTimerModalProps> = ({
 
                   {/* Total Rounds */}
                   <div className="space-y-1.5 text-center">
-                    <label className="text-[10px] font-bold text-amber-400 uppercase block">
+                    <label className="text-[10px] font-bold text-amber-400 uppercase block tracking-wider">
                       {isEn ? 'Rounds' : 'राउंड्स'}
                     </label>
-                    <div className="flex items-center justify-center gap-1 bg-slate-900 border border-slate-800 rounded-xl p-1">
+                    <div className="flex items-center justify-center gap-0.5 bg-slate-900 border border-slate-800 rounded-xl p-1 focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500/30 transition-all">
                       <button
+                        type="button"
                         onClick={() => setTotalRounds(r => Math.max(1, r - 1))}
-                        className="p-1 text-slate-400 hover:text-white"
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors active:scale-95 cursor-pointer"
+                        aria-label={isEn ? "Decrease rounds" : "राउंड्स घटाएं"}
+                        title="-1"
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </button>
-                      <span className="font-mono font-bold text-white text-sm w-7">{totalRounds}</span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="99"
+                        value={totalRounds || ''}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          const safeVal = isNaN(val) ? 0 : Math.max(0, Math.min(99, val));
+                          setTotalRounds(safeVal);
+                        }}
+                        onBlur={() => {
+                          if (!totalRounds || totalRounds < 1) {
+                            setTotalRounds(1);
+                          }
+                        }}
+                        className="w-10 sm:w-12 text-center bg-transparent font-mono font-black text-white text-sm outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-all"
+                      />
                       <button
-                        onClick={() => setTotalRounds(r => r + 1)}
-                        className="p-1 text-slate-400 hover:text-white"
+                        type="button"
+                        onClick={() => setTotalRounds(r => Math.min(99, r + 1))}
+                        className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors active:scale-95 cursor-pointer"
+                        aria-label={isEn ? "Increase rounds" : "राउंड्स बढ़ाएं"}
+                        title="+1"
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
