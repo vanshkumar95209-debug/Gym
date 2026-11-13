@@ -253,12 +253,9 @@ export const CustomTimerModal: React.FC<CustomTimerModalProps> = ({
               <Timer className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black text-white tracking-tight flex items-center gap-1.5">
-                <span>{isEn ? 'Custom Gym Timer' : 'कस्टम जिम टाइमर'}</span>
+              <h2 className="text-base sm:text-lg font-black text-white tracking-tight">
+                {isEn ? 'Timer' : 'टाइमर'}
               </h2>
-              <span className="text-[11px] text-slate-400 block -mt-0.5">
-                {isEn ? 'Rest, HIIT Intervals & Stopwatch' : 'रेस्ट, HIIT इंटरवल व स्टॉपवॉच'}
-              </span>
             </div>
           </div>
 
@@ -806,16 +803,12 @@ export const CustomTimerModal: React.FC<CustomTimerModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between">
-          <span className="text-[11px] text-slate-500">
-            {isEn ? 'Audio signals automatically alert on zero' : '0 पर ऑटोमैटिक साउंड अलर्ट बजेगा'}
-          </span>
-
+        <div className="p-3.5 border-t border-slate-800 bg-slate-950/60 flex justify-end">
           <button
             onClick={onClose}
             className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition cursor-pointer"
           >
-            {isEn ? 'Done / Hide' : 'पूर्ण / बंद करें'}
+            {isEn ? 'Close' : 'बंद करें'}
           </button>
         </div>
       </div>

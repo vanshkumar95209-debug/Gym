@@ -28,29 +28,6 @@ export const EXERCISES: Exercise[] = [
     defaultSetsReps: '4 Sets × 8-10 Reps'
   },
   {
-    id: 'chest-incline-barbell-press',
-    name: 'Incline Barbell Bench Press',
-    hindiName: 'इंक्लाइन बारबेल बेंच प्रेस',
-    targetMuscle: 'chest',
-    targetSubMuscle: 'Upper Chest Clavicular Head',
-    secondaryMuscles: ['Front Delts', 'Triceps'],
-    equipment: 'Barbell',
-    difficulty: 'Intermediate',
-    animationKey: 'incline_barbell_press',
-    repCadence: { eccentricSec: 3, pauseSec: 1, concentricSec: 1 },
-    description: 'Builds upper chest mass with heavy barbell loading.',
-    hindiDescription: 'बारबेल से अपर चेस्ट पर भारी वजन लोड करने की सबसे असरदार कसरत।',
-    steps: [
-      'Bench set at 30° angle. Grip bar slightly wider than shoulders.',
-      'Unrack bar, lower with control to upper chest collarbone.',
-      'Press vertically overhead, contracting upper pecs.'
-    ],
-    tips: ['Keep bench at 30° to avoid shoulder takeover.'],
-    breathingTip: 'Neeche Inhale, upar Exhale.',
-    commonMistakes: ['Bouncing bar', 'Setting bench angle too high (>45°)'],
-    defaultSetsReps: '4 Sets × 8-10 Reps'
-  },
-  {
     id: 'chest-incline-dumbbell-press',
     name: 'Incline Dumbbell Press',
     hindiName: 'इंक्लाइन डंबल प्रेस',
@@ -142,29 +119,6 @@ export const EXERCISES: Exercise[] = [
     tips: ['Keep slight elbow bend static like hugging a big tree.'],
     breathingTip: 'Stretch me Inhale, center squeeze me Exhale.',
     commonMistakes: ['Bending elbows into a press', 'Swinging torso'],
-    defaultSetsReps: '3 Sets × 12-15 Reps'
-  },
-  {
-    id: 'chest-cable-low-to-high',
-    name: 'Low-to-High Cable Fly',
-    hindiName: 'लो-टू-हाई केबल फ्लाई (Upper Pec Cut)',
-    targetMuscle: 'chest',
-    targetSubMuscle: 'Upper Inner Chest Cut',
-    secondaryMuscles: ['Front Delts'],
-    equipment: 'Cables',
-    difficulty: 'Beginner',
-    animationKey: 'cable_low_to_high_fly',
-    repCadence: { eccentricSec: 3, pauseSec: 1, concentricSec: 1 },
-    description: 'Pulls cables upward from floor to target upper-inner pectoral fibers.',
-    hindiDescription: 'केबल को नीचे से ऊपर खींचकर अपर चेस्ट की बीच की लाइन बनाते हैं।',
-    steps: [
-      'Set pulleys to bottom floor position. Hold D-handles with underhand palms up.',
-      'Step forward slightly. Sweep handles up and inward towards chest height.',
-      'Squeeze upper pecs together tightly at the top.'
-    ],
-    tips: ['Lead with pinkies turned slightly inward at the top.'],
-    breathingTip: 'Upar aate waqt Exhale, neeche Inhale.',
-    commonMistakes: ['Using shoulders instead of chest'],
     defaultSetsReps: '3 Sets × 12-15 Reps'
   },
   {
@@ -333,29 +287,6 @@ export const EXERCISES: Exercise[] = [
     breathingTip: 'Neeche Exhale, upar Inhale.',
     commonMistakes: ['Swinging torso back and forth', 'Pulling behind neck'],
     defaultSetsReps: '4 Sets × 10-12 Reps'
-  },
-  {
-    id: 'back-straight-arm-pulldown',
-    name: 'Straight-Arm Cable Lat Pulldown',
-    hindiName: 'स्ट्रेट-आर्म लैट पुलडाउन',
-    targetMuscle: 'back',
-    targetSubMuscle: 'Lat Isolation & Serratus Anterior',
-    secondaryMuscles: ['Triceps Long Head', 'Core'],
-    equipment: 'Cables',
-    difficulty: 'Beginner',
-    animationKey: 'straight_arm_pulldown',
-    repCadence: { eccentricSec: 3, pauseSec: 1, concentricSec: 1 },
-    description: 'Pure lat isolation without involving bicep fatigue.',
-    hindiDescription: 'बिना बाइसेप्स थकाए सिर्फ लैट्स को पूरी तरह निचोड़ने की कसरत।',
-    steps: [
-      'Stand holding straight bar at high cable, arms straight with slight elbow bend.',
-      'Hinge hips slightly forward. Sweep bar down in wide arc to thighs using lats.',
-      'Squeeze lats hard at bottom, return slowly to eye level.'
-    ],
-    tips: ['Keep arms locked straight, do not turn it into a tricep pushdown.'],
-    breathingTip: 'Down sweep par Exhale, release par Inhale.',
-    commonMistakes: ['Bending elbows into pushdown'],
-    defaultSetsReps: '3 Sets × 12-15 Reps'
   },
   {
     id: 'back-barbell-row',
@@ -544,29 +475,6 @@ export const EXERCISES: Exercise[] = [
     tips: ['Do not let elbows drift forward.'],
     breathingTip: 'Curl par Exhale, stretch par Inhale.',
     commonMistakes: ['Using too much weight'],
-    defaultSetsReps: '3 Sets × 10-12 Reps'
-  },
-  {
-    id: 'biceps-spider-curl',
-    name: 'Spider Curl on Incline Bench',
-    hindiName: 'स्पाइडर कर्ल (Spider Curl)',
-    targetMuscle: 'biceps',
-    targetSubMuscle: 'Short Head & Peak Isolation',
-    secondaryMuscles: ['Forearms'],
-    equipment: 'Dumbbell',
-    difficulty: 'Intermediate',
-    animationKey: 'spider_curl',
-    repCadence: { eccentricSec: 3, pauseSec: 1, concentricSec: 1 },
-    description: 'Chest against incline bench stops all body swing completely.',
-    hindiDescription: 'बिना किसी चीटिंग के बाइसेप्स की पीक को अलग से ट्रेन करता है।',
-    steps: [
-      'Lie chest-down on 45° incline bench, arms hanging straight down.',
-      'Curl weights up keeping upper arms perpendicular to floor.',
-      'Hold peak squeeze for 1 second, lower slowly.'
-    ],
-    tips: ['Focus entirely on bicep contraction.'],
-    breathingTip: 'Upar Exhale, neeche Inhale.',
-    commonMistakes: ['Swinging arms'],
     defaultSetsReps: '3 Sets × 10-12 Reps'
   },
   {
@@ -878,29 +786,6 @@ export const EXERCISES: Exercise[] = [
     defaultSetsReps: '3 Sets × 15-20 Reps'
   },
   {
-    id: 'shoulders-reverse-pec-deck',
-    name: 'Reverse Pec Deck / Rear Delt Fly',
-    hindiName: 'रिवर्स पैक डेक फ्लाई',
-    targetMuscle: 'shoulders',
-    targetSubMuscle: 'Posterior Rear Deltoids Isolation',
-    secondaryMuscles: ['Mid Traps'],
-    equipment: 'Machine',
-    difficulty: 'Beginner',
-    animationKey: 'reverse_pec_deck',
-    repCadence: { eccentricSec: 2, pauseSec: 1, concentricSec: 1 },
-    description: 'Strict machine rear deltoid builder.',
-    hindiDescription: 'मशीन पर सीना सटाकर पीछे के कंधों को अलग से ट्रेन करने की कसरत।',
-    steps: [
-      'Sit facing the pec deck machine pad with chest flat against it.',
-      'Grip horizontal or vertical handles with arms extended.',
-      'Fly arms backward horizontally squeezing rear deltoids.'
-    ],
-    tips: ['Keep shoulders depressed down.'],
-    breathingTip: 'Peeche Exhale, aage Inhale.',
-    commonMistakes: ['Shrugging shoulders into neck'],
-    defaultSetsReps: '3 Sets × 12-15 Reps'
-  },
-  {
     id: 'shoulders-shrugs',
     name: 'Dumbbell Shrugs',
     hindiName: 'डंबल श्रग्स (Traps Builder)',
@@ -1183,29 +1068,6 @@ export const EXERCISES: Exercise[] = [
     defaultSetsReps: '3 Sets × 20 Twists'
   },
   {
-    id: 'abs-ab-wheel',
-    name: 'Ab Wheel Rollout',
-    hindiName: 'एब व्हील रोलआउट (Ab Wheel)',
-    targetMuscle: 'abs',
-    targetSubMuscle: 'Deep Core Bracing & Anti-Extension',
-    secondaryMuscles: ['Lats', 'Shoulders'],
-    equipment: 'Bodyweight',
-    difficulty: 'Advanced',
-    animationKey: 'ab_wheel',
-    repCadence: { eccentricSec: 3, pauseSec: 1, concentricSec: 1 },
-    description: 'Extreme full-extension core strength builder.',
-    hindiDescription: 'पहिए को आगे रोल करके पूरे पेट को फौलादी बनाने वाली कसरत।',
-    steps: [
-      'Kneel holding wheel handles under shoulders.',
-      'Roll wheel straight forward extending torso as far as possible without arching.',
-      'Contract abs violently to pull wheel back under chest.'
-    ],
-    tips: ['Keep tailbone tucked (posterior pelvic tilt) to protect lower back.'],
-    breathingTip: 'Aage Inhale, wapas pull par Exhale.',
-    commonMistakes: ['Letting hips sag or back hyperextend'],
-    defaultSetsReps: '3 Sets × 8-12 Reps'
-  },
-  {
     id: 'abs-plank',
     name: 'Forearm Plank',
     hindiName: 'फोरआर्म प्लैंक (Plank)',
@@ -1329,55 +1191,6 @@ export const EXERCISES: Exercise[] = [
     defaultSetsReps: '4 Sets × 12-15 Reps'
   },
   {
-    id: 'noeq-chair-dips',
-    name: 'Chair / Bed Tricep Dips',
-    hindiName: 'चेयर ट्राइसेप डिप्स (Chair Dips)',
-    targetMuscle: 'triceps',
-    targetSubMuscle: 'Triceps Lateral & Long Head',
-    secondaryMuscles: ['Front Delts', 'Chest'],
-    equipment: 'No Equipment',
-    isNoEquipment: true,
-    difficulty: 'Beginner',
-    animationKey: 'chair_dips',
-    repCadence: { eccentricSec: 3, pauseSec: 1, concentricSec: 1 },
-    description: 'Accessible bodyweight tricep builder using any chair, couch, or sturdy bed frame at home.',
-    hindiDescription: 'घर की कुर्सी या बेड के सहारे ट्राइसेप्स की कटिंग और साइज बढ़ाने की सबसे लोकप्रिय कसरत।',
-    steps: [
-      'Sit on edge of chair/bed. Place palms on edge beside hips, knuckles facing forward.',
-      'Slide hips off edge, legs extended out with heels on floor.',
-      'Lower hips straight down by bending elbows to 90 degrees.',
-      'Press through palms forcefully to lockout triceps at top.'
-    ],
-    tips: ['Keep back close to the chair edge throughout the drop.'],
-    breathingTip: 'Neeche Inhale, upar press par Exhale.',
-    commonMistakes: ['Flaring elbows out sideways', 'Pushing hips too far forward'],
-    defaultSetsReps: '3 Sets × 12-15 Reps'
-  },
-  {
-    id: 'noeq-pike-pushups',
-    name: 'Pike Push-Up (Shoulder Press)',
-    hindiName: 'पाइक पुश-अप्स (Pike Pushups)',
-    targetMuscle: 'shoulders',
-    targetSubMuscle: 'Anterior & Lateral Deltoids',
-    secondaryMuscles: ['Triceps', 'Upper Traps'],
-    equipment: 'No Equipment',
-    isNoEquipment: true,
-    difficulty: 'Intermediate',
-    animationKey: 'pike_pushup',
-    repCadence: { eccentricSec: 3, pauseSec: 1, concentricSec: 1 },
-    description: 'Pikes hips into inverted V to replicate vertical overhead barbell shoulder press using bodyweight.',
-    hindiDescription: 'कमर को ऊपर उठाकर इनवर्टेड V आकार में कंधे पर सीधा वजन डालकर चौड़े शोल्डर बनाने की कसरत।',
-    steps: [
-      'Start in pushup position, then walk feet forward and drive hips high into an inverted V shape.',
-      'Lower head diagonally forward between hands until forehead almost touches floor.',
-      'Press up and back to return to the pike position, pushing through delts.'
-    ],
-    tips: ['Keep torso aligned and push head between arms at the top.'],
-    breathingTip: 'Neeche Inhale, upar press par Exhale.',
-    commonMistakes: ['Flaring elbows 90 degrees', 'Rounding lower back'],
-    defaultSetsReps: '3 Sets × 8-12 Reps'
-  },
-  {
     id: 'noeq-bodyweight-squat',
     name: 'Bodyweight Air Squats',
     hindiName: 'बॉडीवेट एयर स्क्वाट्स (Air Squats)',
@@ -1476,30 +1289,6 @@ export const EXERCISES: Exercise[] = [
     defaultSetsReps: '3 Sets × 30-45 Seconds'
   },
   {
-    id: 'noeq-flutter-kicks',
-    name: 'Lying Flutter Kicks',
-    hindiName: 'फ्लटर किक्स (Flutter Kicks)',
-    targetMuscle: 'abs',
-    targetSubMuscle: 'Deep Lower Abs & Transverse Abdominis',
-    secondaryMuscles: ['Hip Flexors'],
-    equipment: 'No Equipment',
-    isNoEquipment: true,
-    difficulty: 'Beginner',
-    animationKey: 'flutter_kicks',
-    repCadence: { eccentricSec: 1, pauseSec: 1, concentricSec: 1 },
-    description: 'Constant tension floor exercise that carves out the lower abdominal V-cut.',
-    hindiDescription: 'पीठ के बल लेटकर पैरों को हवा में छोटी-छोटी किक्स देना, जिससे लोअर एब्स पर सीधा असर पड़ता है।',
-    steps: [
-      'Lie flat on back, hands under glutes to support lower back curvature.',
-      'Hover both legs 6 inches off floor with toes pointed.',
-      'Perform small, rapid scissor kicks up and down without letting heels touch floor.'
-    ],
-    tips: ['Press lower back firmly into the floor at all times.'],
-    breathingTip: 'Pet ko tight rakhte hue regular breathing karein.',
-    commonMistakes: ['Lifting head high straining neck', 'Arching lower back off floor'],
-    defaultSetsReps: '3 Sets × 30-45 Seconds'
-  },
-  {
     id: 'noeq-lying-leg-raises',
     name: 'Lying Floor Leg Raises',
     hindiName: 'लाइंग लेग रेज़ (Floor Leg Raises)',
@@ -1522,6 +1311,352 @@ export const EXERCISES: Exercise[] = [
     breathingTip: 'Pair neeche aate waqt Inhale, upar uthate waqt Exhale.',
     commonMistakes: ['Dropping legs fast without control', 'Arching back off floor'],
     defaultSetsReps: '3 Sets × 15 Reps'
+  },
+
+  // --- Biceps (No Equipment) ---
+  {
+    id: 'noeq-towel-leg-curl',
+    name: 'Towel Leg-Resistance Bicep Curl',
+    hindiName: 'टॉवल लेग रेजिस्टेंस बाइसेप कर्ल',
+    targetMuscle: 'biceps',
+    targetSubMuscle: 'Bicep Peak & Mass (Home)',
+    secondaryMuscles: ['Forearms', 'Brachialis'],
+    equipment: 'No Equipment',
+    isNoEquipment: true,
+    difficulty: 'Beginner',
+    animationKey: 'bicep_curl',
+    repCadence: { eccentricSec: 3, pauseSec: 1, concentricSec: 1 },
+    description: 'Hook a towel under one thigh to curl against adjustable leg resistance anytime at home.',
+    hindiDescription: 'तौलिए को पैर के नीचे फंसाकर पैर के वजन के खिलाफ बाइसेप कर्ल करने की असरदार बिना उपकरण कसरत।',
+    steps: [
+      'Sit on a chair or bed edge, loop a towel under one foot or thigh, grip both ends underhand.',
+      'Keep elbows pinned to sides and press down slightly with your leg for adjustable resistance.',
+      'Curl hands upward squeezing biceps hard, then lower slowly under 3s leg tension.'
+    ],
+    tips: ['Control how hard your leg pushes down so every rep feels challenging.'],
+    breathingTip: 'Upar curl karte waqt Exhale, neeche Inhale.',
+    commonMistakes: ['Flaring elbows forward', 'Rounding shoulders'],
+    defaultSetsReps: '4 Sets × 10-12 Reps'
+  },
+  {
+    id: 'noeq-doorframe-bicep-curl',
+    name: 'Doorframe Bodyweight Bicep Curl',
+    hindiName: 'डोरफ्रेम बॉडीवेट बाइसेप कर्ल',
+    targetMuscle: 'biceps',
+    targetSubMuscle: 'Full Bicep Head & Forearm Grip',
+    secondaryMuscles: ['Forearms', 'Lats'],
+    equipment: 'No Equipment',
+    isNoEquipment: true,
+    difficulty: 'Intermediate',
+    animationKey: 'bicep_curl',
+    repCadence: { eccentricSec: 3, pauseSec: 1, concentricSec: 1 },
+    description: 'Uses bodyweight lean at a doorframe or pillar to curl your torso using pure bicep strength.',
+    hindiDescription: 'दरवाजे के फ्रेम या खंभे को पकड़कर शरीर के वजन से डोले (Biceps) बनाने की होम कसरत।',
+    steps: [
+      'Stand facing a sturdy doorframe, grab both edges with palms facing up at chest height.',
+      'Walk feet slightly forward and lean back keeping arms straight and elbows high.',
+      'Curl your body forward toward the frame purely by bending your elbows and squeezing biceps.'
+    ],
+    tips: ['Keep upper arms fixed forward so your back doesn’t take over.'],
+    breathingTip: 'Aage curl par Exhale, peeche jaate waqt Inhale.',
+    commonMistakes: ['Pulling with lower back instead of bending elbows'],
+    defaultSetsReps: '3 Sets × 10-15 Reps'
+  },
+  {
+    id: 'noeq-isometric-bicep-hold',
+    name: 'Self-Resistance Bicep Curl',
+    hindiName: 'सेल्फ-रेजिस्टेंस बाइसेप कर्ल',
+    targetMuscle: 'biceps',
+    targetSubMuscle: 'Bicep Short & Long Head Isolation',
+    secondaryMuscles: ['Forearms'],
+    equipment: 'No Equipment',
+    isNoEquipment: true,
+    difficulty: 'Beginner',
+    animationKey: 'concentration_curl',
+    repCadence: { eccentricSec: 3, pauseSec: 2, concentricSec: 2 },
+    description: 'One arm provides smooth pushing resistance against the curling wrist for intense bicep pump anywhere.',
+    hindiDescription: 'एक हाथ से दूसरे हाथ पर दबाव बनाकर बिना किसी सामान के बाइसेप्स में जबरदस्त पंप लाने की कसरत।',
+    steps: [
+      'Stand or sit upright, grip your working wrist with your opposite hand.',
+      'Press down gently with the top hand while curling the working arm up against that resistance.',
+      'Squeeze bicep peak for 2 seconds at the top, then resist downward slowly.'
+    ],
+    tips: ['Keep constant tension throughout both the curl up and negative down.'],
+    breathingTip: 'Upar curl par Exhale, neeche Inhale.',
+    commonMistakes: ['Moving too fast without creating real resistance'],
+    defaultSetsReps: '3 Sets × 12 Reps per arm'
+  },
+  {
+    id: 'noeq-hammer-towel-curl',
+    name: 'Neutral-Grip Towel Hammer Curl',
+    hindiName: 'टॉवल हैमर कर्ल (Forearms & Peak)',
+    targetMuscle: 'biceps',
+    targetSubMuscle: 'Brachialis & Thick Forearms',
+    secondaryMuscles: ['Forearms'],
+    equipment: 'No Equipment',
+    isNoEquipment: true,
+    difficulty: 'Beginner',
+    animationKey: 'hammer_curl',
+    repCadence: { eccentricSec: 3, pauseSec: 1, concentricSec: 1 },
+    description: 'Neutral thumbs-up towel curl under the leg to build arm thickness and forearms at home.',
+    hindiDescription: 'तौलिए को हैमर ग्रिप में पकड़कर बाजू की मोटाई और फोरआर्म्स बढ़ाने की होम कसरत।',
+    steps: [
+      'Loop a folded towel under your raised thigh and hold both ends with thumbs pointing up.',
+      'Keep elbow locked at your ribs and pull upward against steady thigh resistance.',
+      'Lower slowly for 3 seconds maintaining tension.'
+    ],
+    tips: ['Keep wrists straight and thumbs pointed toward ceiling.'],
+    breathingTip: 'Curl par Exhale, neeche Inhale.',
+    commonMistakes: ['Swinging shoulders'],
+    defaultSetsReps: '3 Sets × 12-15 Reps'
+  },
+
+  // --- Additional Triceps (No Equipment) ---
+  {
+    id: 'noeq-bodyweight-skull-crusher',
+    name: 'Bodyweight Floor Tricep Extension',
+    hindiName: 'बॉडीवेट ट्राइसेप एक्सटेंशन (Floor)',
+    targetMuscle: 'triceps',
+    targetSubMuscle: 'Triceps Long Head Mass',
+    secondaryMuscles: ['Core', 'Shoulders'],
+    equipment: 'No Equipment',
+    isNoEquipment: true,
+    difficulty: 'Intermediate',
+    animationKey: 'skull_crusher',
+    repCadence: { eccentricSec: 3, pauseSec: 1, concentricSec: 1 },
+    description: 'Plank-position forearm-to-palm press isolating the triceps just like gym skull crushers.',
+    hindiDescription: 'फर्श पर प्लैंक पोजीशन में कोहनियों को मोड़कर व सीधा करके ट्राइसेप्स का साइज बढ़ाने की कसरत।',
+    steps: [
+      'Start in a plank with hands placed slightly ahead of shoulders (or forearms on floor).',
+      'Lower forearms smoothly toward the floor keeping elbows tucked inward, not flared.',
+      'Press through palms cleanly to extend arms straight and lock out triceps.'
+    ],
+    tips: ['Start from knees if full plank feels too heavy at first.'],
+    breathingTip: 'Neeche Inhale, upar press par Exhale.',
+    commonMistakes: ['Flaring elbows wide', 'Sagging lower back'],
+    defaultSetsReps: '3 Sets × 10-12 Reps'
+  },
+  {
+    id: 'noeq-cobra-tricep-pushup',
+    name: 'Close-Grip Cobra Tricep Push-Ups',
+    hindiName: 'कोबरा ट्राइसेप पुश-अप्स',
+    targetMuscle: 'triceps',
+    targetSubMuscle: 'Medial & Lateral Triceps Head',
+    secondaryMuscles: ['Inner Chest', 'Shoulders'],
+    equipment: 'No Equipment',
+    isNoEquipment: true,
+    difficulty: 'Beginner',
+    animationKey: 'pushup',
+    repCadence: { eccentricSec: 2, pauseSec: 1, concentricSec: 1 },
+    description: 'Tucked-elbow close push-up keeping arms tight against ribs to light up the triceps.',
+    hindiDescription: 'कोहनियों को शरीर से सटाकर किए जाने वाले क्लोज पुश-अप्स, जो ट्राइसेप्स को तेजी से टोन करते हैं।',
+    steps: [
+      'Place hands directly under chest with elbows tucked tightly alongside your ribcage.',
+      'Lower torso under control keeping elbows brushing your sides.',
+      'Push back up locking out the backs of your arms.'
+    ],
+    tips: ['Keep elbows pointing straight backward, never sideways.'],
+    breathingTip: 'Neeche Inhale, upar Exhale.',
+    commonMistakes: ['Letting elbows flare out'],
+    defaultSetsReps: '3 Sets × 12-15 Reps'
+  },
+  {
+    id: 'noeq-crab-tricep-dips',
+    name: 'Floor Crab Tricep Dips',
+    hindiName: 'फ्लोर क्रैब ट्राइसेप डिप्स',
+    targetMuscle: 'triceps',
+    targetSubMuscle: 'Triceps Horseshoe Lockout',
+    secondaryMuscles: ['Rear Delts', 'Core'],
+    equipment: 'No Equipment',
+    isNoEquipment: true,
+    difficulty: 'Beginner',
+    animationKey: 'bench_dips',
+    repCadence: { eccentricSec: 2, pauseSec: 1, concentricSec: 1 },
+    description: 'Zero-furniture floor dips needing only a flat mat or floor to pump the triceps.',
+    hindiDescription: 'बिना कुर्सी या बेंच के सीधे फर्श पर ट्राइसेप्स डिप्स लगाकर बाजू के पिछले हिस्से को टाइट करें।',
+    steps: [
+      'Sit on floor with knees bent, feet flat, and palms behind hips fingers facing forward.',
+      'Lift hips off floor into reverse tabletop.',
+      'Bend elbows straight back to dip hips near floor, then drive up squeezing triceps.'
+    ],
+    tips: ['Focus on bending the elbows rather than just dropping hips.'],
+    breathingTip: 'Neeche Inhale, upar lockout par Exhale.',
+    commonMistakes: ['Dropping hips without bending elbows'],
+    defaultSetsReps: '3 Sets × 15-20 Reps'
+  },
+
+  // --- Additional Shoulders (No Equipment) ---
+  {
+    id: 'noeq-hindu-pushups',
+    name: 'Hindu Push-Ups (Desi Dand)',
+    hindiName: 'देसी दंड (Hindu Push-Ups)',
+    targetMuscle: 'shoulders',
+    targetSubMuscle: 'All Three Deltoid Heads & Traps',
+    secondaryMuscles: ['Chest', 'Triceps', 'Core'],
+    equipment: 'No Equipment',
+    isNoEquipment: true,
+    difficulty: 'Intermediate',
+    animationKey: 'pushup',
+    repCadence: { eccentricSec: 2, pauseSec: 1, concentricSec: 2 },
+    description: 'Traditional Indian bodyweight sweep building bulletproof shoulders, upper chest, and flexibility.',
+    hindiDescription: 'पारंपरिक भारतीय देसी दंड जो कंधों, छाती और बाजुओं में फौलादी ताकत और चौड़ापन लाता है।',
+    steps: [
+      'Start in an inverted V pike stance with hips high.',
+      'Dive chest smoothly down in a swooping arc just above the floor, arching up into upward dog.',
+      'Push hips high back into the inverted V pike to finish the rep.'
+    ],
+    tips: ['Keep the swoop fluid and controlled through shoulders and chest.'],
+    breathingTip: 'Neeche dive karte waqt Inhale, upar push par Exhale.',
+    commonMistakes: ['Dropping knees onto floor'],
+    defaultSetsReps: '3 Sets × 12-15 Reps'
+  },
+  {
+    id: 'noeq-arm-circles-burnout',
+    name: 'Shoulder Arm Circles & Hold',
+    hindiName: 'आर्म सर्कल्स शोल्डर बर्नआउट',
+    targetMuscle: 'shoulders',
+    targetSubMuscle: 'Side & Rear Deltoid Endurance',
+    secondaryMuscles: ['Traps', 'Rotator Cuff'],
+    equipment: 'No Equipment',
+    isNoEquipment: true,
+    difficulty: 'Beginner',
+    animationKey: 'lateral_raise',
+    repCadence: { eccentricSec: 1, pauseSec: 1, concentricSec: 1 },
+    description: 'Continuous straight-arm circles and T-holds delivering a deep deltoid burn anywhere.',
+    hindiDescription: 'बिना डंबल के लगातार हाथों को गोल घुमाकर कंधों को गोल और टोन करने की आसान कसरत।',
+    steps: [
+      'Stand tall with arms extended straight out to sides at shoulder height (T-pose).',
+      'Make tight controlled forward circles for 20-30s, then reverse backward for 20-30s.',
+      'Keep shoulders relaxed down away from ears.'
+    ],
+    tips: ['Do not drop your arms below shoulder height during the set.'],
+    breathingTip: 'Lambi aur steady saansein lete rahein.',
+    commonMistakes: ['Shrugging shoulders up toward ears'],
+    defaultSetsReps: '3 Sets × 45-60 Seconds'
+  },
+
+  // --- Additional Legs (No Equipment) ---
+  {
+    id: 'noeq-reverse-lunges',
+    name: 'Bodyweight Reverse Lunges',
+    hindiName: 'बॉडीवेट रिवर्स लंजिज़',
+    targetMuscle: 'legs',
+    targetSubMuscle: 'Quads, Glutes & Knee-Friendly Power',
+    secondaryMuscles: ['Hamstrings', 'Core'],
+    equipment: 'No Equipment',
+    isNoEquipment: true,
+    difficulty: 'Beginner',
+    animationKey: 'lunges',
+    repCadence: { eccentricSec: 2, pauseSec: 1, concentricSec: 1 },
+    description: 'Stepping backward into a lunge protects the knees while sculpting firm quads and glutes.',
+    hindiDescription: 'पीछे की ओर कदम बढ़ाकर जांघों और हिप्स को मजबूत बनाने की घुटनों के लिए सुरक्षित कसरत।',
+    steps: [
+      'Stand tall feet hip-width apart, hands on hips or clasped in front.',
+      'Step one leg straight back and lower both knees to 90 degrees.',
+      'Drive through your front heel to return upright and switch legs.'
+    ],
+    tips: ['Keep front shin vertical and torso upright.'],
+    breathingTip: 'Neeche jaate waqt Inhale, upar aate waqt Exhale.',
+    commonMistakes: ['Front knee caving inward'],
+    defaultSetsReps: '3 Sets × 20 Reps (10/leg)'
+  },
+  {
+    id: 'noeq-jump-squats',
+    name: 'Explosive Jump Squats',
+    hindiName: 'जंप स्क्वाट्स (Explosive Legs)',
+    targetMuscle: 'legs',
+    targetSubMuscle: 'Fast-Twitch Quads & Athletic Power',
+    secondaryMuscles: ['Glutes', 'Calves'],
+    equipment: 'No Equipment',
+    isNoEquipment: true,
+    difficulty: 'Intermediate',
+    animationKey: 'air_squat',
+    repCadence: { eccentricSec: 2, pauseSec: 0, concentricSec: 1 },
+    description: 'Plyometric bodyweight squats building explosive leg power and burning maximum calories.',
+    hindiDescription: 'उछाल के साथ स्क्वाट्स करने से जांघों की ताकत और स्टैमिना तेजी से बढ़ता है।',
+    steps: [
+      'Drop into a clean bodyweight squat with hips back.',
+      'Explode upward off the floor jumping as high as possible.',
+      'Land softly on balls of feet descending immediately into the next squat.'
+    ],
+    tips: ['Land softly like a cat to absorb impact cleanly.'],
+    breathingTip: 'Neeche Inhale, jump ke saath Exhale.',
+    commonMistakes: ['Landing with locked stiff knees'],
+    defaultSetsReps: '3 Sets × 12-15 Reps'
+  },
+  {
+    id: 'noeq-single-leg-calf-raise',
+    name: 'Single-Leg Bodyweight Calf Raise',
+    hindiName: 'सिंगल-लेग काफ रेज़ (Home)',
+    targetMuscle: 'legs',
+    targetSubMuscle: 'Calves Size & Ankle Stability',
+    secondaryMuscles: [],
+    equipment: 'No Equipment',
+    isNoEquipment: true,
+    difficulty: 'Beginner',
+    animationKey: 'calf_raise',
+    repCadence: { eccentricSec: 3, pauseSec: 2, concentricSec: 1 },
+    description: 'Doubles bodyweight load onto one calf at a time using a floor stair or doorstep.',
+    hindiDescription: 'सीढ़ी या दरवाजे की चौखट पर एक पैर से खड़े होकर पिंडलियों (Calves) को मजबूत करने की कसरत।',
+    steps: [
+      'Stand on one foot on a stair edge or flat floor, holding wall lightly for balance.',
+      'Drop heel down for a deep stretch, then push high onto tiptoes and hold 2 seconds.',
+      'Complete all reps then switch legs.'
+    ],
+    tips: ['Pause 2 full seconds at the top squeeze on every rep.'],
+    breathingTip: 'Upar uthne par Exhale, neeche Inhale.',
+    commonMistakes: ['Bouncing fast without full range'],
+    defaultSetsReps: '3 Sets × 15-20 Reps per leg'
+  },
+
+  // --- Additional Abs (No Equipment) ---
+  {
+    id: 'noeq-side-plank',
+    name: 'Isometric Side Plank Hold',
+    hindiName: 'साइड प्लैंक होल्ड (Obliques)',
+    targetMuscle: 'abs',
+    targetSubMuscle: 'Side Obliques & Waist Tightening',
+    secondaryMuscles: ['Shoulders', 'Glutes'],
+    equipment: 'No Equipment',
+    isNoEquipment: true,
+    difficulty: 'Beginner',
+    animationKey: 'plank',
+    repCadence: { eccentricSec: 1, pauseSec: 30, concentricSec: 1 },
+    description: 'Tightens waist side walls and builds lateral core stability with zero equipment.',
+    hindiDescription: 'कमर के साइड की चर्बी घटाने और ऑब्लिक एब्स को टाइट करने की असरदार होल्ड एक्सरसाइज।',
+    steps: [
+      'Lie on one side propped up on your forearm directly beneath your shoulder.',
+      'Lift hips off floor forming a straight diagonal line from head to heels.',
+      'Hold steady keeping obliques braced tight, then switch sides.'
+    ],
+    tips: ['Do not let hips sag down toward the floor.'],
+    breathingTip: 'Core tight rakhte hue regular steady saans lein.',
+    commonMistakes: ['Hips dropping downward'],
+    defaultSetsReps: '3 Sets × 30-45 Sec per side'
+  },
+  {
+    id: 'noeq-v-ups',
+    name: 'Bodyweight V-Ups',
+    hindiName: 'बॉडीवेट वी-अप्स (Full Abs)',
+    targetMuscle: 'abs',
+    targetSubMuscle: 'Upper & Lower Rectus Abdominis',
+    secondaryMuscles: ['Hip Flexors'],
+    equipment: 'No Equipment',
+    isNoEquipment: true,
+    difficulty: 'Intermediate',
+    animationKey: 'floor_leg_raises',
+    repCadence: { eccentricSec: 2, pauseSec: 1, concentricSec: 1 },
+    description: 'Folds upper torso and straight legs simultaneously to hammer both upper and lower abs together.',
+    hindiDescription: 'अपर और लोअर एब्स दोनों को एक साथ ट्रेन करने वाली दमदार फ्लोर कसरत।',
+    steps: [
+      'Lie flat on back with arms extended overhead and legs straight.',
+      'Simultaneously lift chest and straight legs up to touch fingers toward toes in a V shape.',
+      'Lower both under control just above floor without resting.'
+    ],
+    tips: ['Exhale sharply as you crunch up into the V position.'],
+    breathingTip: 'Upar V banate waqt Exhale, neeche Inhale.',
+    commonMistakes: ['Bending knees heavily or swinging arms'],
+    defaultSetsReps: '3 Sets × 12-15 Reps'
   }
 ];
 

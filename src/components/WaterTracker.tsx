@@ -259,115 +259,49 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({
         </div>
       </div>
 
-      {/* WHEN TO DRINK & HOW MUCH (कब और कितना पानी पीना है) */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2">
-          <div>
-            <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-              <Clock className="w-5 h-5 text-cyan-400" />
-              <span>{t.whenAndHowToDrink}</span>
-            </h3>
-            <p className="text-xs text-slate-400">
-              {language === 'hi'
-                ? 'वैज्ञानिक नियम अनुसार समय पर पानी पीने से पाचन, मसल रिकवरी और स्टैमिना 100% रहता है।'
-                : 'Scientific hydration timing for maximum muscle recovery, digestion, and zero cramps.'}
-            </p>
-          </div>
+      {/* Daily Schedule Checklist */}
+      <div className="space-y-3">
+        <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
+          <Clock className="w-4 h-4 text-cyan-400" />
+          <span>{t.whenAndHowToDrink}</span>
+        </h3>
 
-          <span className="text-[11px] font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20 whitespace-nowrap">
-            7 टाइम स्लॉट (Schedule)
-          </span>
-        </div>
-
-        {/* Schedule Slots Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
           {WATER_SLOTS.map(slot => {
             const isDone = waterLog.completedSlots?.includes(slot.id);
 
             return (
-              <div
+              <button
                 key={slot.id}
                 onClick={() => handleToggleSlot(slot.id, slot.targetGlasses)}
-                className={`p-4 rounded-2xl border transition cursor-pointer flex flex-col justify-between gap-3 ${
+                className={`p-3.5 rounded-2xl border transition cursor-pointer text-left flex items-center justify-between gap-3 ${
                   isDone
-                    ? 'bg-cyan-950/30 border-cyan-500/50 shadow-md shadow-cyan-500/5 ring-1 ring-cyan-500/30'
+                    ? 'bg-cyan-950/30 border-cyan-500/50 ring-1 ring-cyan-500/30'
                     : 'bg-slate-900 border-slate-800 hover:border-slate-700'
                 }`}
               >
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className="text-[11px] font-bold text-cyan-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
-                      ⏰ {slot.timeSlot}
-                    </span>
-                    <span className="text-xs font-black text-white px-2 py-0.5 rounded-lg bg-cyan-500/20 border border-cyan-500/30">
-                      💧 {slot.targetGlasses} {language === 'hi' ? 'ग्लास' : 'Glasses'} ({slot.amountMl}ml)
-                    </span>
-                  </div>
-
-                  <h4 className="font-bold text-white text-sm sm:text-base">
+                <div className="min-w-0">
+                  <span className="text-[11px] font-bold text-cyan-400 block">
+                    {slot.timeSlot}
+                  </span>
+                  <h4 className="font-bold text-white text-xs sm:text-sm truncate mt-0.5">
                     {language === 'hi' ? slot.labelHi : slot.labelEn}
                   </h4>
-
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                    {language === 'hi' ? slot.reasonHi : slot.reasonEn}
-                  </p>
-                </div>
-
-                <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
                   <span className="text-[11px] text-slate-400">
-                    {isDone 
-                      ? (language === 'hi' ? '✅ पानी पी लिया' : '✅ Completed')
-                      : (language === 'hi' ? 'नल पर क्लिक करके मार्क करें' : 'Click to mark drunk')}
+                    {slot.targetGlasses} {language === 'hi' ? 'ग्लास' : 'Glasses'} ({slot.amountMl}ml)
                   </span>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleToggleSlot(slot.id, slot.targetGlasses);
-                    }}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold cursor-pointer transition flex items-center gap-1.5 ${
-                      isDone
-                        ? 'bg-cyan-500 text-slate-950 font-black'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                    }`}
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>{isDone ? 'Done' : '+ मार्क करें'}</span>
-                  </button>
                 </div>
-              </div>
+
+                <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 transition ${
+                  isDone
+                    ? 'bg-cyan-500 text-slate-950'
+                    : 'bg-slate-800 text-slate-400'
+                }`}>
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+              </button>
             );
           })}
-        </div>
-      </div>
-
-      {/* GOLDEN HYDRATION RULES BOX (सोने जैसे नियम) */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
-        <div className="flex items-center gap-2 text-amber-400 font-bold text-sm border-b border-slate-800 pb-2">
-          <Sparkles className="w-4 h-4 text-amber-400" />
-          <span>{language === 'hi' ? 'जिम में पानी पीने के 4 सुनहरे नियम (Golden Rules)' : '4 Golden Hydration Rules for Gym & Fitness'}</span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-300">
-          <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-            <strong className="text-amber-400 block">1. खाने के तुरंत बाद कभी पानी न पिएं</strong>
-            <span>खाने के तुरंत बाद पानी पीने से जठराग्नि (पाचन एंजाइम) मंद पड़ जाती है, जिससे खाना पचने के बजाय पेट में सड़ने लगता है और गैस बनती है। हमेशा 40-45 मिनट बाद पिएं।</span>
-          </div>
-
-          <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-            <strong className="text-cyan-400 block">2. वर्कआउट में बर्फ जैसा ठंडा पानी न पिएं</strong>
-            <span>हैवी सेट्स के बाद अत्यधिक ठंडा पानी पीने से शरीर को शॉक लगता है और पाचन तंत्र सिकुड़ता है। रूम टेम्परेचर या हल्का मटके का ठंडा पानी सबसे सही है।</span>
-          </div>
-
-          <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-            <strong className="text-emerald-400 block">3. खड़े होकर नहीं, बैठकर घूंट-घूंट पिएं</strong>
-            <span>खड़े होकर गटक-गटक पानी पीने से किडनी पर सीधा दबाव पड़ता है और जोड़ों में दर्द (Arthritis) का खतरा बढ़ता है। शांति से बैठकर घूंट लेकर पिएं।</span>
-          </div>
-
-          <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-            <strong className="text-rose-400 block">4. पेशाब का रंग चेक करें (Hydration Indicator)</strong>
-            <span>अगर पेशाब का रंग बिल्कुल हल्का पानी जैसा या पारदर्शी है तो आप हाइड्रेटेड हैं। अगर गहरा पीला है, तो तुरंत 2 बड़े ग्लास पानी पिएं।</span>
-          </div>
         </div>
       </div>
     </div>

@@ -8,7 +8,6 @@ import {
   Plus, 
   Minus,
   Sparkles, 
-  Wind, 
   Flame,
   Coffee,
   SkipForward,
@@ -20,6 +19,7 @@ import {
 import confetti from 'canvas-confetti';
 import { Exercise, WorkoutSet, AppLanguage } from '../types';
 import { ExerciseVideoPlayer } from './ExerciseVideoPlayer';
+import { ExerciseAnimation } from './ExerciseAnimation';
 import { 
   playRepDing, 
   playTimerTick, 
@@ -27,7 +27,6 @@ import {
   playIntervalChangeSound,
   playStreakFanfare 
 } from '../utils/audio';
-import { getExerciseGuide } from '../data/exerciseGuides';
 
 interface ActiveWorkoutModalProps {
   exercise: Exercise;
@@ -45,7 +44,6 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
   initialTimerSettings = null
 }) => {
   const isEn = language === 'en';
-  const guide = getExerciseGuide(exercise, language);
 
   // Modal Stage: 'setup' -> 'active' -> 'completed'
   // If timer settings were already picked in the previous screen, jump straight to 'active'
@@ -201,23 +199,14 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
       <div className="bg-slate-900 border border-slate-700/80 rounded-2xl sm:rounded-3xl w-full max-w-2xl max-h-[94vh] overflow-y-auto shadow-2xl flex flex-col relative">
         
         {/* Top Header */}
-        <div className="sticky top-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 p-3.5 sm:p-4 flex items-center justify-between z-10">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                {isEn ? 'Exercise Timer' : 'कसरत टाइमर'}
-              </span>
-              <span className="text-[11px] text-slate-400">🎯 {exercise.targetMuscle}</span>
-            </div>
-            <h2 className="text-base sm:text-lg font-black text-white mt-0.5">
-              {isEn ? exercise.name : exercise.hindiName}
-            </h2>
-          </div>
+        <div className="sticky top-0 bg-slate-900 border-b border-slate-800 p-3.5 sm:p-4 flex items-center justify-between z-10">
+          <h2 className="text-base sm:text-lg font-black text-white">
+            {isEn ? exercise.name : exercise.hindiName}
+          </h2>
 
           <button
             onClick={onClose}
             className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition cursor-pointer"
-            title={isEn ? "Close" : "बंद करें"}
           >
             <X className="w-5 h-5" />
           </button>
@@ -240,44 +229,11 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                 />
               </div>
 
-              {/* ONLY BREATHING TECHNIQUE (Guide removed as requested) */}
-              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3.5 space-y-2">
-                <div className="flex items-center gap-2 text-cyan-400 font-bold text-xs sm:text-sm border-b border-slate-800 pb-1.5">
-                  <Wind className="w-4 h-4 text-cyan-400" />
-                  <span>{isEn ? 'Breathing Technique' : 'सांस का नियम'}</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                  <div className="p-2.5 rounded-xl bg-cyan-950/30 border border-cyan-800/40 text-cyan-200">
-                    <strong className="block text-cyan-400 mb-0.5">
-                      🟢 {isEn ? 'Inhale (सांस अंदर):' : 'सांस अंदर लें:'}
-                    </strong>
-                    <span className="text-[11px] leading-relaxed text-slate-300">{guide.breathing.inhale}</span>
-                  </div>
-
-                  <div className="p-2.5 rounded-xl bg-rose-950/30 border border-rose-800/40 text-rose-200">
-                    <strong className="block text-rose-400 mb-0.5">
-                      🔴 {isEn ? 'Exhale (सांस बाहर):' : 'सांस बाहर छोड़ें:'}
-                    </strong>
-                    <span className="text-[11px] leading-relaxed text-slate-300">{guide.breathing.exhale}</span>
-                  </div>
-                </div>
-
-                <p className="text-[11px] text-slate-400 italic pt-1">
-                  💡 {guide.breathing.tip}
-                </p>
-              </div>
-
               {/* SETS, WORKOUT TIME, REST TIME SETUP CONTROLS */}
-              <div className="bg-slate-950 border border-amber-500/30 rounded-2xl p-4 space-y-3 shadow-lg shadow-amber-500/5">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                  <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                    <Settings2 className="w-4 h-4 text-amber-400" />
-                    <span>{isEn ? 'Setup Workout Timer:' : 'टाइमर व सेट्स सेट करें:'}</span>
-                  </span>
-                  <span className="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                    {isEn ? 'Direct Editable + Plus/Minus' : 'सीधा नंबर बदलें या +/- दबाएं'}
-                  </span>
+              <div className="bg-slate-950 border border-amber-500/30 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+                  <Settings2 className="w-4 h-4 text-amber-400" />
+                  <span>{isEn ? 'Timer & Sets' : 'टाइमर व सेट्स'}</span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -470,6 +426,16 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                 </button>
               </div>
 
+              {/* Live Exercise Form Animation */}
+              <ExerciseAnimation
+                animationKey={exercise.animationKey}
+                targetMuscle={exercise.targetMuscle}
+                isPlaying={isRunning}
+                phase={phase}
+                language={language}
+                compact={true}
+              />
+
               {/* Video Player when opened */}
               {showVideo && (
                 <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-inner animate-in fade-in">
@@ -484,7 +450,7 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
               )}
 
               {/* Central Big Circular / Card Countdown Timer */}
-              <div className={`p-6 rounded-3xl border text-center transition-all shadow-xl relative overflow-hidden ${
+              <div className={`p-4 sm:p-5 rounded-3xl border text-center transition-all shadow-xl relative overflow-hidden ${
                 phase === 'work'
                   ? 'bg-gradient-to-b from-emerald-950/40 to-slate-950 border-emerald-500/40 shadow-emerald-500/10'
                   : 'bg-gradient-to-b from-cyan-950/40 to-slate-950 border-cyan-500/40 shadow-cyan-500/10'
@@ -508,7 +474,7 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                 </div>
 
                 {/* Set dots indicator */}
-                <div className="flex items-center justify-center gap-1.5 my-3">
+                <div className="flex items-center justify-center gap-1.5 mt-3">
                   {Array.from({ length: totalSets }).map((_, idx) => (
                     <div
                       key={idx}
@@ -521,31 +487,6 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                       }`}
                     />
                   ))}
-                </div>
-
-                {/* LIVE BREATHING PROMPT (During Exercise & Rest) */}
-                <div className="mt-4 pt-3 border-t border-slate-800/80 bg-slate-950/70 p-3 rounded-2xl text-xs space-y-1 text-left">
-                  <div className="flex items-center gap-1.5 text-cyan-400 font-bold mb-1">
-                    <Wind className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>{isEn ? 'Live Breathing Guide:' : 'सांस का नियम (Breathing):'}</span>
-                  </div>
-
-                  {phase === 'work' ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                      <div className="bg-cyan-950/40 border border-cyan-800/50 p-2 rounded-xl text-cyan-200">
-                        <strong className="block text-cyan-400 text-[11px]">🟢 {isEn ? 'Inhale:' : 'सांस अंदर:'}</strong>
-                        <span className="text-[11px] leading-snug">{guide.breathing.inhale}</span>
-                      </div>
-                      <div className="bg-rose-950/40 border border-rose-800/50 p-2 rounded-xl text-rose-200">
-                        <strong className="block text-rose-400 text-[11px]">🔴 {isEn ? 'Exhale:' : 'सांस बाहर:'}</strong>
-                        <span className="text-[11px] leading-snug">{guide.breathing.exhale}</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-slate-300 text-xs italic bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-                      🫁 <strong>{isEn ? 'Rest Breathing:' : 'रेस्ट के दौरान सांस:'}</strong> {guide.breathing.tip}
-                    </p>
-                  )}
                 </div>
               </div>
 
@@ -630,14 +571,9 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                 <Award className="w-9 h-9" />
               </div>
 
-              <div className="space-y-1">
-                <h3 className="text-xl font-black text-white">
-                  {isEn ? 'Exercise Completed! 🎉' : 'कसरत सफलतापूर्वक पूरी हुई! 🎉'}
-                </h3>
-                <p className="text-xs text-slate-400">
-                  {isEn ? `Awesome job crushing ${exercise.name}!` : `शानदार प्रदर्शन! आपने ${exercise.hindiName} पूरा कर लिया!`}
-                </p>
-              </div>
+              <h3 className="text-xl font-black text-white">
+                {isEn ? 'Workout Complete' : 'कसरत पूरी हुई'}
+              </h3>
 
               {/* Summary Badges */}
               <div className="grid grid-cols-3 gap-2.5 max-w-sm mx-auto text-center pt-2">

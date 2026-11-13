@@ -70,6 +70,7 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
   const [currentPlan, setCurrentPlan] = useState<CustomDietPlan | null>(null);
   const [copiedNotification, setCopiedNotification] = useState<boolean>(false);
   const [saveSuccessNotification, setSaveSuccessNotification] = useState<boolean>(false);
+  const [confirmingDeletePlanId, setConfirmingDeletePlanId] = useState<string | null>(null);
 
   // Modal for adding food from database
   const [activeMealSlotIdForFood, setActiveMealSlotIdForFood] = useState<string | null>(null);
@@ -142,6 +143,7 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
   const handleSelectPlan = (planId: string) => {
     const found = savedPlans.find(p => p.id === planId);
     if (found) {
+      setConfirmingDeletePlanId(null);
       setCurrentPlan(JSON.parse(JSON.stringify(found))); // deep clone for editing
     }
   };
@@ -161,16 +163,12 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
   };
 
   const handleDeletePlan = (planId: string) => {
-    const confirmText = isEn 
-      ? 'Are you sure you want to delete this diet plan?' 
-      : 'क्या आप वाकई इस डाइट प्लान को हटाना चाहते हैं?';
-    if (!window.confirm(confirmText)) return;
-
     playResetSound();
     const remaining = deleteStoredCustomDietPlan(planId);
     setSavedPlans(remaining);
+    setConfirmingDeletePlanId(null);
     if (remaining.length > 0) {
-      setCurrentPlan(remaining[0]);
+      setCurrentPlan(JSON.parse(JSON.stringify(remaining[0])));
     } else {
       handleCreateNewPlan();
     }
@@ -342,7 +340,7 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
     text += `• Total Calories: ${totalPlanCalories} kcal\n`;
     text += `• Total Carbs: ${totalPlanCarbs.toFixed(1)}g\n`;
     text += `• Total Fats: ${totalPlanFats.toFixed(1)}g\n`;
-    text += `\nGenerated with IronPulse Fitness App`;
+    text += `\nGenerated with FitBro Fitness App`;
 
     navigator.clipboard.writeText(text);
     setCopiedNotification(true);
@@ -397,19 +395,9 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
       {/* Top Banner: Saved Plans Switcher & Plan Creation Header */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
-              <h2 className="text-base sm:text-lg font-black text-white tracking-tight">
-                {isEn ? 'Custom Diet Plan Maker' : 'कस्टम डाइट प्लान मेकर'}
-              </h2>
-            </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {isEn 
-                ? 'Design your own custom bodybuilding meals, grams, and track exact protein & calories.' 
-                : 'अपनी पसंद के अनुसार भोजन, ग्राम व कैलोरी तय करके खुद का पर्सनल डाइट प्लान बनाएं।'}
-            </p>
-          </div>
+          <h2 className="text-base sm:text-lg font-black text-white tracking-tight">
+            {isEn ? 'Custom Diet Maker' : 'कस्टम डाइट मेकर'}
+          </h2>
 
           {/* Action Buttons: New Plan & Save */}
           <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
@@ -589,16 +577,9 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
 
       {/* Meals Section Header & Add Custom Meal Slot Button */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div>
-          <h3 className="font-black text-white text-sm sm:text-base tracking-tight">
-            {isEn ? 'Meal Slots & Food Timing' : 'भोजन समय व डाइट स्लॉट्स'}
-          </h3>
-          <p className="text-xs text-slate-400">
-            {isEn 
-              ? `${currentPlan.meals.length} meals configured. Add foods with grams to calculate nutrition.` 
-              : `${currentPlan.meals.length} भोजन स्लॉट्स तैयार हैं। ग्राम के हिसाब से फूड्स जोड़ें।`}
-          </p>
-        </div>
+        <h3 className="font-black text-white text-sm sm:text-base tracking-tight">
+          {isEn ? `Meals (${currentPlan.meals.length})` : `भोजन (${currentPlan.meals.length})`}
+        </h3>
 
         {/* Quick Add Meal Slot Dropdown */}
         <div className="relative">
@@ -709,10 +690,8 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
               {/* Food Items Inside Slot */}
               <div className="p-3.5 space-y-2">
                 {mealSlot.foods.length === 0 ? (
-                  <div className="py-4 text-center text-xs text-slate-500 border border-dashed border-slate-800 rounded-xl">
-                    {isEn 
-                      ? 'No foods in this meal yet. Click below to add from food database or add custom item.' 
-                      : 'इस भोजन में अभी कोई फूड नहीं जोड़ा गया है। नीचे बटन दबाकर फूड जोड़ें।'}
+                  <div className="py-3 text-center text-xs text-slate-500 border border-dashed border-slate-800 rounded-xl">
+                    {isEn ? 'No foods added' : 'कोई फूड नहीं'}
                   </div>
                 ) : (
                   <div className="space-y-1.5">
@@ -787,13 +766,36 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
 
       {/* Delete whole plan button */}
       <div className="pt-2 flex justify-end">
-        <button
-          onClick={() => handleDeletePlan(currentPlan.id)}
-          className="text-xs text-red-400/80 hover:text-red-300 cursor-pointer flex items-center gap-1 transition p-2 rounded-lg hover:bg-red-500/10"
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-          <span>{isEn ? 'Delete This Diet Plan' : 'यह डाइट प्लान हटाएं'}</span>
-        </button>
+        {confirmingDeletePlanId === currentPlan.id ? (
+          <div className="flex items-center gap-2 bg-red-950/40 border border-red-500/40 rounded-xl px-3 py-1.5">
+            <span className="text-xs font-bold text-red-300">
+              {isEn ? 'Delete this plan?' : 'क्या यह प्लान हटाएं?'}
+            </span>
+            <button
+              type="button"
+              onClick={() => handleDeletePlan(currentPlan.id)}
+              className="px-2.5 py-1 rounded-lg bg-red-500 hover:bg-red-400 text-white text-xs font-black cursor-pointer transition"
+            >
+              {isEn ? 'Yes, Delete' : 'हाँ, हटाएं'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmingDeletePlanId(null)}
+              className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold cursor-pointer transition"
+            >
+              {isEn ? 'Cancel' : 'रद्द करें'}
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setConfirmingDeletePlanId(currentPlan.id)}
+            className="text-xs text-red-400/80 hover:text-red-300 cursor-pointer flex items-center gap-1 transition p-2 rounded-lg hover:bg-red-500/10"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>{isEn ? 'Delete This Diet Plan' : 'यह डाइट प्लान हटाएं'}</span>
+          </button>
+        )}
       </div>
 
       {/* MODAL 1: Add from Food Database */}
@@ -802,14 +804,9 @@ export const CustomDietMaker: React.FC<CustomDietMakerProps> = ({
           <div className="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
             {/* Header */}
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-              <div>
-                <h4 className="font-bold text-white text-sm sm:text-base">
-                  {isEn ? 'Add Food from Database' : 'फूड लिस्ट से चुनें'}
-                </h4>
-                <p className="text-xs text-slate-400">
-                  {isEn ? 'Select any item and adjust quantity in grams' : 'कोई भी खाद्य चुनें और ग्राम में मात्रा तय करें'}
-                </p>
-              </div>
+              <h4 className="font-bold text-white text-sm sm:text-base">
+                {isEn ? 'Add Food' : 'फूड जोड़ें'}
+              </h4>
 
               <button
                 onClick={() => {

@@ -22,6 +22,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   const [weightKg, setWeightKg] = useState<number>(userProfile.weightKg || 70);
   const [goal, setGoal] = useState<UserFitnessProfile['goal']>(userProfile.goal || 'muscle_gain');
   const [testNotificationSent, setTestNotificationSent] = useState<boolean>(false);
+  const [notificationError, setNotificationError] = useState<string | null>(null);
 
   // Check browser Notification permission on load
   useEffect(() => {
@@ -31,21 +32,22 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   }, []);
 
   const handleToggleReminder = async (enabled: boolean) => {
+    setNotificationError(null);
     if (enabled) {
       if (typeof window !== 'undefined' && 'Notification' in window) {
         if (Notification.permission !== 'granted') {
           const res = await Notification.requestPermission();
           setPermissionStatus(res);
           if (res !== 'granted') {
-            alert(isEn 
-              ? 'Notification permission was not granted. Please enable notifications in your browser settings.'
-              : 'नोटिफिकेशन की अनुमति नहीं मिली। कृपया ब्राउज़र सेटिंग्स में नोटिफिकेशन allow करें।');
+            setNotificationError(isEn 
+              ? 'Notification permission was not granted. Please allow notifications in browser settings.'
+              : 'नोटिफिकेशन की अनुमति नहीं मिली। कृपया ब्राउज़र सेटिंग्स में अनुमति दें।');
             setReminderEnabled(false);
             return;
           }
         }
       } else {
-        alert(isEn 
+        setNotificationError(isEn 
           ? 'Browser notification is not supported on this device.'
           : 'आपके ब्राउज़र में नोटिफिकेशन सपोर्ट उपलब्ध नहीं है।');
         setReminderEnabled(false);
@@ -59,7 +61,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   const handleSendTestNotification = () => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
       if (Notification.permission === 'granted') {
-        new Notification('🏋️ IronPulse Gym Reminder!', {
+        new Notification('🏋️ FitBro Gym Reminder!', {
           body: isEn 
             ? `Workout time (${reminderTime})! Complete today's training session.`
             : `वर्कआउट का समय हो गया है (${reminderTime})! आज का कसरत सत्र पूरा करें।`,
@@ -71,7 +73,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
         Notification.requestPermission().then(perm => {
           setPermissionStatus(perm);
           if (perm === 'granted') {
-            new Notification('🏋️ IronPulse Gym Reminder!', {
+            new Notification('🏋️ FitBro Gym Reminder!', {
               body: isEn
                 ? `Workout time (${reminderTime})! Complete today's training session.`
                 : `वर्कआउट का समय हो गया है (${reminderTime})! आज का कसरत सत्र पूरा करें।`
@@ -105,14 +107,9 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             <span className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
               <Bell className="w-5 h-5" />
             </span>
-            <div>
-              <h3 className="font-bold text-white text-base">
-                {isEn ? 'Profile & Settings' : 'प्रोफाइल व सेटिंग्स'}
-              </h3>
-              <p className="text-xs text-slate-400">
-                {isEn ? 'Daily workout alert and fitness goal' : 'डेली वर्कआउट अलर्ट और फिटनेस लक्ष्य'}
-              </p>
-            </div>
+            <h3 className="font-bold text-white text-base">
+              {isEn ? 'Settings' : 'सेटिंग्स'}
+            </h3>
           </div>
           <button
             onClick={onClose}
@@ -122,19 +119,14 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           </button>
         </div>
 
-        {/* DAILY REMINDER SECTION (Notification API) */}
+        {/* DAILY REMINDER SECTION */}
         <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-4">
           <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <div className="font-bold text-white text-sm flex items-center gap-2">
-                <span>{isEn ? 'Daily Workout Reminder' : 'दैनिक वर्कआउट रिमाइंडर'}</span>
-                {reminderEnabled && (
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                )}
-              </div>
-              <p className="text-xs text-slate-400">
-                {isEn ? 'Get browser notification alerts at your gym time' : 'वर्कआउट के समय ब्राउज़र नोटिफिकेशन द्वारा अलर्ट पाएं'}
-              </p>
+            <div className="font-bold text-white text-sm flex items-center gap-2">
+              <span>{isEn ? 'Workout Reminder' : 'वर्कआउट रिमाइंडर'}</span>
+              {reminderEnabled && (
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              )}
             </div>
 
             {/* Toggle switch */}
@@ -184,6 +176,9 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 </button>
               </div>
             </div>
+          )}
+          {notificationError && (
+            <p className="text-[11px] text-rose-400 font-medium">{notificationError}</p>
           )}
         </div>
 

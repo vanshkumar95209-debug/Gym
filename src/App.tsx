@@ -6,8 +6,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { WorkoutExplorer } from './components/WorkoutExplorer';
-import { WorkoutPlans } from './components/WorkoutPlans';
-import { WorkoutTracker } from './components/WorkoutTracker';
 import { DietDirectory } from './components/DietDirectory';
 import { WaterTracker } from './components/WaterTracker';
 import { ProfileModal } from './components/ProfileModal';
@@ -39,13 +37,14 @@ import {
   DailyWorkoutLog 
 } from './types';
 import { TRANSLATIONS } from './utils/translations';
+import { EXERCISES } from './data/exercises';
 import { Dumbbell, Utensils, Droplets, ChevronRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { playStreakFanfare } from './utils/audio';
 
 export default function App() {
   const todayStr = getLocalDateString();
-  const [activeTab, setActiveTab] = useState<'workouts' | 'plans' | 'tracker' | 'diet' | 'water'>('workouts');
+  const [activeTab, setActiveTab] = useState<'workouts' | 'diet' | 'water'>('workouts');
   const [language, setLanguage] = useState<AppLanguage>(() => getStoredLanguage());
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
   const [showCustomTimerModal, setShowCustomTimerModal] = useState<boolean>(false);
@@ -57,7 +56,10 @@ export default function App() {
   // Stored States: Initialized synchronously from localStorage so data is immediately visible
   const [todayDietLogs, setTodayDietLogs] = useState<DailyDietLogItem[]>(() => getStoredDietLogs(todayStr));
   const [userProfile, setUserProfile] = useState<UserFitnessProfile>(() => getStoredProfile());
-  const [favorites, setFavorites] = useState<string[]>(() => getFavoriteExercises());
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    const validIds = new Set(EXERCISES.map(ex => ex.id));
+    return getFavoriteExercises().filter(id => validIds.has(id));
+  });
   const [waterLog, setWaterLog] = useState<DailyWaterLog>(() => getStoredWaterLog(todayStr));
   const [todayWorkoutLogs, setTodayWorkoutLogs] = useState<DailyWorkoutLog[]>(() => {
     return getStoredWorkoutLogs().filter(l => l.date === todayStr);
@@ -92,7 +94,8 @@ export default function App() {
   useEffect(() => {
     setTodayDietLogs(getStoredDietLogs(todayStr));
     setUserProfile(getStoredProfile());
-    setFavorites(getFavoriteExercises());
+    const validIds = new Set(EXERCISES.map(ex => ex.id));
+    setFavorites(getFavoriteExercises().filter(id => validIds.has(id)));
     setWaterLog(getStoredWaterLog(todayStr));
     setLanguage(getStoredLanguage());
   }, [todayStr]);
@@ -116,7 +119,7 @@ export default function App() {
 
       if (currentTimeStr === userProfile.reminderTime && userProfile.lastReminderDate !== currentDateStr) {
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-          new Notification('🏋️ IronPulse Gym Reminder!', {
+          new Notification('🏋️ FitBro Gym Reminder!', {
             body: language === 'hi'
               ? `वर्कआउट का समय हो गया है (${userProfile.reminderTime})! आज का कसरत सत्र पूरा करें।`
               : `Time for your workout (${userProfile.reminderTime})! Complete today's training session.`,
@@ -235,24 +238,6 @@ export default function App() {
             language={language}
             onOpenCustomTimer={() => setShowCustomTimerModal(true)}
             todayWorkoutLogs={todayWorkoutLogs}
-          />
-        )}
-
-        {activeTab === 'plans' && (
-          <WorkoutPlans
-            language={language}
-            onOpenTracker={() => setActiveTab('tracker')}
-            onPlanCompleted={() => {
-              setTodayWorkoutLogs(getStoredWorkoutLogs().filter(l => l.date === todayStr));
-            }}
-          />
-        )}
-
-        {activeTab === 'tracker' && (
-          <WorkoutTracker
-            language={language}
-            onOpenPlans={() => setActiveTab('plans')}
-            onOpenWorkouts={() => setActiveTab('workouts')}
           />
         )}
 
